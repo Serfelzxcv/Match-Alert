@@ -12,6 +12,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 COPY next.config.ts postcss.config.mjs tsconfig.json next-env.d.ts ./
 COPY src ./src
+COPY public ./public
 RUN npm run build
 
 FROM node:22-bookworm-slim AS runner
@@ -25,6 +26,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
 
 EXPOSE 3000
 
