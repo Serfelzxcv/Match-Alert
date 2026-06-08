@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f7f3;
-  --foreground: #14211c;
+  --orange-alert: #ff6a2b;
+  --green-opportunity: #9dff2f;
+  --night-blue: #071a1f;
+  --deep-charcoal: #0b0f12;
+  --ice-white: #f4f7fa;
+  --background: var(--deep-charcoal);
+  --foreground: var(--ice-white);
 }
 
 body {
