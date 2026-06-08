@@ -14,7 +14,7 @@ function AuthCallbackContent() {
     const token = searchParams.get('token');
 
     if (!token) {
-      setError('No se recibió un token válido.');
+      setError('No se recibio un token valido.');
       return;
     }
 
@@ -24,11 +24,11 @@ function AuthCallbackContent() {
 
   if (error) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-4">
-        <section className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-950">Error de autenticación</h1>
-          <p className="mt-3 text-gray-600">{error}</p>
-          <Link className="mt-6 inline-block font-semibold text-emerald-700" href="/login">
+      <main className="flex min-h-screen items-center justify-center bg-[#f4f7f3] px-4">
+        <section className="w-full max-w-md rounded-lg border border-[#d7ded5] bg-white p-6 shadow-sm">
+          <h1 className="text-2xl font-black text-[#14211c]">Error de autenticacion</h1>
+          <p className="mt-3 text-[#52635a]">{error}</p>
+          <Link className="mt-6 inline-block font-bold text-[#2f7d55]" href="/login">
             Volver a login
           </Link>
         </section>
@@ -37,8 +37,8 @@ function AuthCallbackContent() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <p className="text-gray-700">Procesando autenticación...</p>
+    <main className="flex min-h-screen items-center justify-center bg-[#f4f7f3] px-4">
+      <p className="font-semibold text-[#52635a]">Procesando autenticacion...</p>
     </main>
   );
 }
@@ -47,8 +47,8 @@ export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <main className="flex min-h-screen items-center justify-center px-4">
-          <p className="text-gray-700">Procesando autenticación...</p>
+        <main className="flex min-h-screen items-center justify-center bg-[#f4f7f3] px-4">
+          <p className="font-semibold text-[#52635a]">Procesando autenticacion...</p>
         </main>
       }
     >

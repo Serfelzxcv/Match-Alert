@@ -8,9 +8,53 @@ services:
       POSTGRES_PASSWORD: match_alert_password
       POSTGRES_DB: match_alert_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - match_alert_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U match_alert_user -d match_alert_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: match_alert_backend
+    restart: unless-stopped
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://match_alert_user:match_alert_password@postgres:5432/match_alert_db?schema=public
+      JWT_SECRET: change_this_jwt_secret
+      JWT_EXPIRES_IN: 7d
+      FRONTEND_URL: http://localhost:3000
+      GOOGLE_CLIENT_ID: your_google_client_id
+      GOOGLE_CLIENT_SECRET: your_google_client_secret
+      GOOGLE_CALLBACK_URL: http://localhost:3001/auth/google/callback
+      FACEBOOK_CLIENT_ID: your_facebook_client_id
+      FACEBOOK_CLIENT_SECRET: your_facebook_client_secret
+      FACEBOOK_CALLBACK_URL: http://localhost:3001/auth/facebook/callback
+      API_FOOTBALL_BASE_URL: https://v3.football.api-sports.io
+      API_FOOTBALL_KEY: your_api_football_key
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    container_name: match_alert_frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
 
 volumes:
   match_alert_postgres_data:

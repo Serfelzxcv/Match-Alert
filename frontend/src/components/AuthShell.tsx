@@ -11,14 +11,36 @@ export function AuthShell({
   children: ReactNode;
 }) {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <section className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <Link href="/" className="text-sm font-semibold text-emerald-700">
-          Match Alert
-        </Link>
-        <h1 className="mt-5 text-2xl font-bold text-gray-950">{title}</h1>
-        <p className="mt-2 text-sm text-gray-600">{subtitle}</p>
-        <div className="mt-6">{children}</div>
+    <main className="grid min-h-screen bg-[#f4f7f3] px-5 py-8 lg:grid-cols-[1fr_460px] lg:px-8">
+      <section className="hidden flex-col justify-between rounded-lg bg-[#14211c] p-8 text-white lg:flex">
+        <div>
+          <Link href="/" className="text-lg font-black">
+            Match Alert
+          </Link>
+          <h2 className="mt-12 max-w-xl text-5xl font-black leading-tight">
+            Alertas listas para partidos que cambian rapido.
+          </h2>
+        </div>
+        <div className="grid gap-3">
+          <div className="rounded-md bg-white/10 p-4">
+            <p className="text-sm font-bold text-[#a8e0bd]">Backend conectado</p>
+            <p className="mt-2 text-sm text-white/75">Autenticacion local, OAuth y perfil protegido.</p>
+          </div>
+          <div className="rounded-md bg-white/10 p-4">
+            <p className="text-sm font-bold text-[#a8e0bd]">Docker listo</p>
+            <p className="mt-2 text-sm text-white/75">Postgres, API y frontend en el mismo compose.</p>
+          </div>
+        </div>
+      </section>
+      <section className="mx-auto flex w-full max-w-md flex-col justify-center lg:pl-8">
+        <div className="rounded-lg border border-[#d7ded5] bg-white p-6 shadow-sm">
+          <Link href="/" className="text-sm font-bold uppercase text-[#2f7d55]">
+            Match Alert
+          </Link>
+          <h1 className="mt-3 text-3xl font-black text-[#14211c]">{title}</h1>
+          <p className="mt-2 text-sm leading-6 text-[#52635a]">{subtitle}</p>
+          <div className="mt-6">{children}</div>
+        </div>
       </section>
     </main>
   );

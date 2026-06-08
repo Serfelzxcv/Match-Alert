@@ -25,19 +25,19 @@ export default function LoginPage() {
       setToken(response.data.accessToken);
       router.push('/welcome');
     } catch (requestError: any) {
-      setError(requestError.response?.data?.message || 'No se pudo iniciar sesión');
+      setError(requestError.response?.data?.message || 'No se pudo iniciar sesion');
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <AuthShell title="Iniciar sesión" subtitle="Accede con email o con un proveedor OAuth.">
+    <AuthShell title="Iniciar sesion" subtitle="Accede con tu email o conecta un proveedor OAuth.">
       <form className="space-y-4" onSubmit={handleSubmit}>
         <label className="block">
-          <span className="text-sm font-medium text-gray-700">Email</span>
+          <span className="text-sm font-semibold text-[#263b33]">Email</span>
           <input
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-emerald-700"
+            className="mt-1 w-full rounded-md border border-[#cfd8cf] px-3 py-3 outline-none focus:border-[#2f7d55]"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -45,9 +45,9 @@ export default function LoginPage() {
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-gray-700">Password</span>
+          <span className="text-sm font-semibold text-[#263b33]">Password</span>
           <input
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-emerald-700"
+            className="mt-1 w-full rounded-md border border-[#cfd8cf] px-3 py-3 outline-none focus:border-[#2f7d55]"
             type="password"
             minLength={6}
             value={password}
@@ -55,27 +55,29 @@ export default function LoginPage() {
             required
           />
         </label>
-        {error ? <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
+        {error ? <p className="rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p> : null}
         <button
-          className="w-full rounded-md bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
+          className="w-full rounded-md bg-[#14211c] px-4 py-3 font-bold text-white hover:bg-[#21372f] disabled:opacity-60"
           type="submit"
           disabled={isLoading}
         >
-          {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
+          {isLoading ? 'Ingresando...' : 'Iniciar sesion'}
         </button>
       </form>
+
       <div className="mt-4 grid gap-3">
-        <a className="rounded-md border border-gray-300 px-4 py-3 text-center font-semibold" href={`${backendUrl}/auth/google`}>
-          Iniciar sesión con Google
+        <a className="rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]" href={`${backendUrl}/auth/google`}>
+          Continuar con Google
         </a>
-        <a className="rounded-md border border-gray-300 px-4 py-3 text-center font-semibold" href={`${backendUrl}/auth/facebook`}>
-          Iniciar sesión con Facebook
+        <a className="rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]" href={`${backendUrl}/auth/facebook`}>
+          Continuar con Facebook
         </a>
       </div>
-      <p className="mt-5 text-center text-sm text-gray-600">
-        ¿No tienes cuenta?{' '}
-        <Link className="font-semibold text-emerald-700" href="/register">
-          Regístrate
+
+      <p className="mt-5 text-center text-sm text-[#52635a]">
+        No tienes cuenta?{' '}
+        <Link className="font-bold text-[#2f7d55]" href="/register">
+          Crear cuenta
         </Link>
       </p>
     </AuthShell>
