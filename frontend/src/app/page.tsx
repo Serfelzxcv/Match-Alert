@@ -4,6 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Lock, Mail, User, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { api, getBackendUrl } from '@/lib/api';
 import { setToken } from '@/lib/auth';
 
@@ -182,104 +185,117 @@ function AuthModal({
         onClick={onClose}
       />
 
-      <section className="relative grid max-h-[86vh] w-full max-w-4xl overflow-y-auto rounded-lg border border-[var(--orange-alert)]/80 bg-white text-[var(--deep-charcoal)] shadow-[0_26px_90px_rgba(0,0,0,0.55)] md:h-[470px] md:grid-cols-[0.94fr_1.06fr] md:overflow-hidden">
-        <button
-          type="button"
+      <section className="relative grid max-h-[92vh] w-full max-w-[900px] overflow-y-auto rounded-lg border border-[var(--green-opportunity)]/55 bg-[#070b0e] text-[var(--ice-white)] shadow-[0_0_0_1px_rgba(255,106,43,0.35),0_28px_90px_rgba(0,0,0,0.7),0_0_55px_rgba(157,255,47,0.16)] md:h-[520px] md:grid-cols-[382px_1fr] md:overflow-hidden">
+        <Button
+          variant="icon"
           onClick={onClose}
-          className="absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full border border-black/10 bg-white/95 text-lg font-bold text-[#1b1b1b] shadow-sm transition hover:bg-[#f5f5f5]"
+          className="absolute right-3 top-3 z-20 h-8 w-8 rounded-full p-0"
           aria-label="Cerrar"
         >
-          x
-        </button>
+          <X className="h-4 w-4" strokeWidth={2.4} />
+        </Button>
 
-        <div className="relative hidden items-center justify-center bg-[radial-gradient(circle_at_20%_20%,rgba(157,255,47,0.16),transparent_28%),linear-gradient(135deg,#f6f6f6_0%,#ffffff_52%,#f1f1f1_100%)] p-6 md:flex">
-          <div className="absolute inset-y-6 right-0 w-px bg-black/10" />
-          <div className="relative aspect-[4/5] w-full max-w-[312px] overflow-hidden rounded-md shadow-[16px_16px_24px_rgba(0,0,0,0.24)] ring-1 ring-black/10">
-            <Image
-              src="/assets/modal_image.png"
-              alt="Match Alert siempre alertas"
-              fill
-              sizes="312px"
-              className="object-cover"
-              priority
-            />
-          </div>
+        <div className="relative hidden overflow-hidden md:block">
+          <Image
+            src="/assets/modal_image.png"
+            alt="Match Alert siempre alertas"
+            fill
+            sizes="382px"
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-y-0 right-0 w-16 bg-[linear-gradient(90deg,transparent,#070b0e)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(157,255,47,0.1),transparent_32%,rgba(255,106,43,0.16))]" />
         </div>
 
-        <div className="flex min-h-[470px] items-center justify-center bg-[linear-gradient(180deg,#ffffff_0%,#fbfbfb_100%)] px-5 py-10 sm:px-9 md:min-h-0">
-          <div className="w-full max-w-sm">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-md bg-[#101516] text-sm font-black text-[var(--green-opportunity)] ring-1 ring-black/10">
+        <div className="relative flex min-h-[520px] items-start justify-center overflow-hidden bg-[radial-gradient(circle_at_12%_0%,rgba(157,255,47,0.22),transparent_30%),radial-gradient(circle_at_100%_100%,rgba(255,64,79,0.26),transparent_32%),linear-gradient(135deg,#070b0e_0%,#10161a_54%,#080b0d_100%)] px-5 py-5 sm:px-8 md:min-h-0">
+          <div className="absolute left-0 top-0 h-px w-full bg-[linear-gradient(90deg,var(--green-opportunity),var(--orange-alert),#ff404f)]" />
+          <div className="absolute -right-20 top-12 h-40 w-40 rounded-full border border-[var(--green-opportunity)]/15" />
+          <div className="absolute -bottom-14 left-8 h-28 w-28 rounded-full border border-[var(--orange-alert)]/15" />
+
+          <div className="relative w-full max-w-[350px]">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="grid h-9 w-9 place-items-center rounded-md bg-[var(--green-opportunity)] text-xs font-black text-[#071014] shadow-[0_0_24px_rgba(157,255,47,0.42)]">
                 MA
               </div>
               <div>
                 <p className="text-xs font-black uppercase text-[var(--orange-alert)]">Match Alert</p>
-                <p className="text-xs font-semibold text-[#777]">Alertas al instante</p>
+                <p className="text-xs font-semibold text-[var(--ice-white)]/58">Alertas al instante</p>
               </div>
             </div>
 
-            <h2 id="auth-modal-title" className="text-2xl font-black text-[#111]">
+            <h2 id="auth-modal-title" className="text-[28px] font-black leading-none text-white">
               {isRegister ? 'Crear cuenta' : 'Iniciar sesion'}
             </h2>
-            <p className="mt-1 text-sm leading-5 text-[#676767]">
+            <p className="mt-1 text-sm leading-5 text-[var(--ice-white)]/64">
               {isRegister
                 ? 'Crea tu acceso y prepara tus primeras alertas.'
                 : 'Entra para seguir tus partidos y avisos activos.'}
             </p>
 
-            <div className="mt-5 grid grid-cols-2 rounded-lg border border-[#e4e4e4] bg-[#f4f4f4] p-1">
-              <button
-                type="button"
+            <div className="mt-3 grid grid-cols-2 rounded-lg border border-white/10 bg-white/[0.06] p-1 shadow-[inset_0_0_18px_rgba(255,255,255,0.03)]">
+              <Button
+                variant="ghost"
                 onClick={() => onModeChange('login')}
-                className={`rounded-md px-3 py-2 text-sm font-bold transition ${
-                  !isRegister ? 'bg-white text-[#111] shadow-sm' : 'text-[#747474] hover:bg-white/45 hover:text-[#111]'
+                className={`h-10 px-3 ${
+                  !isRegister
+                    ? 'bg-[var(--green-opportunity)] text-[#071014] shadow-[0_0_18px_rgba(157,255,47,0.28)]'
+                    : 'text-white/56 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 Login
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="ghost"
                 onClick={() => onModeChange('register')}
-                className={`rounded-md px-3 py-2 text-sm font-bold transition ${
-                  isRegister ? 'bg-white text-[#111] shadow-sm' : 'text-[#747474] hover:bg-white/45 hover:text-[#111]'
+                className={`h-10 px-3 ${
+                  isRegister
+                    ? 'bg-[var(--green-opportunity)] text-[#071014] shadow-[0_0_18px_rgba(157,255,47,0.28)]'
+                    : 'text-white/56 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 Registro
-              </button>
+              </Button>
             </div>
 
-            <form className="mt-5 min-h-[178px] space-y-3" onSubmit={handleSubmit}>
+            <form className="mt-3 space-y-2.5" onSubmit={handleSubmit}>
               {isRegister ? (
-                <input
-                  className="h-11 w-full rounded-lg border border-[#d8d8d8] bg-white px-4 text-sm font-semibold text-[#111] shadow-[0_6px_18px_rgba(0,0,0,0.04)] outline-none transition placeholder:text-[#a0a0a0] focus:border-[var(--orange-alert)] focus:ring-4 focus:ring-[var(--orange-alert)]/12"
-                  placeholder="Nombre"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--green-opportunity)]/72" />
+                  <Input
+                    placeholder="Nombre"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    required
+                  />
+                </div>
+              ) : null}
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--orange-alert)]/78" />
+                <Input
+                  placeholder="Email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                 />
-              ) : null}
-              <input
-                className="h-11 w-full rounded-lg border border-[#d8d8d8] bg-white px-4 text-sm font-semibold text-[#111] shadow-[0_6px_18px_rgba(0,0,0,0.04)] outline-none transition placeholder:text-[#a0a0a0] focus:border-[var(--orange-alert)] focus:ring-4 focus:ring-[var(--orange-alert)]/12"
-                placeholder="Email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-              <input
-                className="h-11 w-full rounded-lg border border-[#d8d8d8] bg-white px-4 text-sm font-semibold text-[#111] shadow-[0_6px_18px_rgba(0,0,0,0.04)] outline-none transition placeholder:text-[#a0a0a0] focus:border-[var(--orange-alert)] focus:ring-4 focus:ring-[var(--orange-alert)]/12"
-                placeholder="Password"
-                type="password"
-                minLength={6}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
+              </div>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#ff4057]/78" />
+                <Input
+                  placeholder="Password"
+                  type="password"
+                  minLength={6}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </div>
               {error ? (
                 <p className="rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p>
               ) : null}
-              <button
-                className="h-11 w-full rounded-lg bg-[linear-gradient(90deg,var(--orange-alert),#ff404f)] px-4 text-sm font-black text-white shadow-[0_12px_26px_rgba(255,106,43,0.32)] transition hover:brightness-105 disabled:opacity-60"
+              <Button
+                className="h-10 w-full"
                 type="submit"
                 disabled={isLoading}
               >
@@ -290,33 +306,33 @@ function AuthModal({
                   : isRegister
                     ? 'Continuar con Email'
                     : 'Iniciar sesion'}
-              </button>
+              </Button>
             </form>
 
             <div className="mt-3 grid gap-2">
               <a
-                className="h-10 rounded-lg border border-[#d8d8d8] bg-white px-4 py-2.5 text-center text-sm font-bold leading-5 text-[#222] shadow-sm transition hover:border-[#bdbdbd] hover:bg-[#f9f9f9]"
+                className="h-10 rounded-lg border border-white/12 bg-white/[0.06] px-4 py-2.5 text-center text-sm font-bold leading-5 text-white/88 transition hover:border-[var(--green-opportunity)]/45 hover:bg-white/[0.1] hover:text-white"
                 href={`${backendUrl}/auth/google`}
               >
                 Continuar con Google
               </a>
               <a
-                className="h-10 rounded-lg border border-[#d8d8d8] bg-white px-4 py-2.5 text-center text-sm font-bold leading-5 text-[#222] shadow-sm transition hover:border-[#bdbdbd] hover:bg-[#f9f9f9]"
+                className="h-10 rounded-lg border border-white/12 bg-white/[0.06] px-4 py-2.5 text-center text-sm font-bold leading-5 text-white/88 transition hover:border-[var(--orange-alert)]/45 hover:bg-white/[0.1] hover:text-white"
                 href={`${backendUrl}/auth/facebook`}
               >
                 Continuar con Facebook
               </a>
             </div>
 
-            <p className="mt-5 text-center text-sm text-[#6b6b6b]">
+            <p className="mt-3 text-center text-sm text-white/52">
               {isRegister ? 'Ya tienes cuenta?' : 'No tienes cuenta?'}{' '}
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={() => onModeChange(isRegister ? 'login' : 'register')}
-                className="font-black text-[var(--orange-alert)] hover:text-[#e85b24]"
+                className="h-auto p-0 text-sm font-black text-[var(--green-opportunity)] hover:bg-transparent hover:text-[var(--orange-alert)]"
               >
                 {isRegister ? 'Inicia sesion' : 'Registrate'}
-              </button>
+              </Button>
             </p>
           </div>
         </div>
