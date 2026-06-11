@@ -1,5 +1,25 @@
 # Match Alert
 
+## Frontends
+
+Este repositorio contiene tres superficies frontend:
+
+- `frontend`: landing/login actual de Match Alert. Corre en `http://localhost:3000`.
+- `match-alert-panel`: panel operativo de Match Alert, derivado de `community-agent-template`. Corre en `http://localhost:3002`.
+- `community-agent-template`: repo clonado original de Vercel Labs, sin editar, guardado como base de componentes y referencia.
+
+Para levantar el panel junto al stack actual:
+
+```bash
+docker compose up -d --build match-alert-panel
+```
+
+Para levantar todo:
+
+```bash
+docker compose up -d --build
+```
+
 Base inicial fullstack para Match Alert.
 
 ## Stack

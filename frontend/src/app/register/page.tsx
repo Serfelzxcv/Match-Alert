@@ -84,12 +84,12 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <div className="mt-4 grid gap-3">
-        <a className="rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]" href={`${backendUrl}/auth/google`}>
+      <div className="mt-4">
+        <a
+          className="flex w-full items-center justify-center rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]"
+          href={`${backendUrl}/auth/google`}
+        >
           Registrarme con Google
-        </a>
-        <a className="rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]" href={`${backendUrl}/auth/facebook`}>
-          Registrarme con Facebook
         </a>
       </div>
 

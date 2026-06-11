@@ -56,5 +56,22 @@ services:
     depends_on:
       - backend
 
+  match-alert-panel:
+    build:
+      context: ./match-alert-panel
+    container_name: match_alert_panel
+    restart: unless-stopped
+    environment:
+      ADMIN_DEMO_MODE: "true"
+      ALLOW_ADMIN_DEMO_MODE: "true"
+      BETTER_AUTH_SECRET: match-alert-panel-demo-secret-change-before-production
+      BETTER_AUTH_URL: http://localhost:3002
+      COMMUNITY_NAME: Match Alert
+      NEXT_PUBLIC_MATCH_ALERT_URL: http://localhost:3000
+    ports:
+      - "3002:3000"
+    depends_on:
+      - backend
+
 volumes:
   match_alert_postgres_data:

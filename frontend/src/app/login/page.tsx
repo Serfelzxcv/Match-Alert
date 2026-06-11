@@ -32,7 +32,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthShell title="Iniciar sesion" subtitle="Accede con tu email o conecta un proveedor OAuth.">
+    <AuthShell title="Iniciar sesion" subtitle="Accede con tu email o con Google.">
       <form className="space-y-4" onSubmit={handleSubmit}>
         <label className="block">
           <span className="text-sm font-semibold text-[#263b33]">Email</span>
@@ -65,12 +65,12 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="mt-4 grid gap-3">
-        <a className="rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]" href={`${backendUrl}/auth/google`}>
+      <div className="mt-4">
+        <a
+          className="flex w-full items-center justify-center rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]"
+          href={`${backendUrl}/auth/google`}
+        >
           Continuar con Google
-        </a>
-        <a className="rounded-md border border-[#cfd8cf] px-4 py-3 text-center font-bold text-[#14211c]" href={`${backendUrl}/auth/facebook`}>
-          Continuar con Facebook
         </a>
       </div>
 
