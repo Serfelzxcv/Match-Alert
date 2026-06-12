@@ -23,7 +23,7 @@ export default function LoginPage() {
     try {
       const response = await api.post('/auth/login', { email, password });
       setToken(response.data.accessToken);
-      router.push('/welcome');
+      router.push('/dashboard');
     } catch (requestError: any) {
       setError(requestError.response?.data?.message || 'No se pudo iniciar sesion');
     } finally {

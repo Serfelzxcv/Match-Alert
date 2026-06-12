@@ -164,7 +164,7 @@ function AuthModal({
       const payload = isRegister ? { name, email, password } : { email, password };
       const response = await api.post(isRegister ? '/auth/register' : '/auth/login', payload);
       setToken(response.data.accessToken);
-      router.push('/welcome');
+      router.push('/dashboard');
     } catch (requestError: any) {
       setError(
         requestError.response?.data?.message ||

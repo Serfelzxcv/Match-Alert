@@ -19,7 +19,7 @@ function AuthCallbackContent() {
     }
 
     setToken(token);
-    router.replace('/welcome');
+    router.replace('/dashboard');
   }, [router, searchParams]);
 
   if (error) {

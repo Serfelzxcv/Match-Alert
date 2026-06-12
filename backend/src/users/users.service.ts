@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { AuthProvider, Prisma, User } from '@prisma/client';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { AuthProvider, Prisma, Role, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 
 export type SafeUser = Omit<User, 'passwordHash'>;
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
+
+  async onModuleInit() {
+    await this.ensureRootUser();
+  }
 
   findByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email } });
@@ -55,5 +60,29 @@ export class UsersService {
   toSafeUser(user: User): SafeUser {
     const { passwordHash, ...safeUser } = user;
     return safeUser;
+  }
+
+  private async ensureRootUser() {
+    const email = 'root@gmail.com';
+    const passwordHash = await bcrypt.hash('123456', 10);
+    const existingUser = await this.findByEmail(email);
+
+    if (existingUser) {
+      await this.update(existingUser.id, {
+        name: 'root',
+        passwordHash,
+        role: Role.ADMIN,
+        provider: AuthProvider.LOCAL,
+      });
+      return;
+    }
+
+    await this.create({
+      name: 'root',
+      email,
+      passwordHash,
+      role: Role.ADMIN,
+      provider: AuthProvider.LOCAL,
+    });
   }
 }
