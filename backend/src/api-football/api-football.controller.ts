@@ -1,6 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiFootballService } from './api-football.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('football')
 export class ApiFootballController {
   constructor(private readonly apiFootballService: ApiFootballService) {}

@@ -17,11 +17,23 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    container_name: match_alert_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - match_alert_redis_data:/data
+
   backend:
     build:
       context: ./backend
     container_name: match_alert_backend
     restart: unless-stopped
+    env_file:
+      - path: ./backend/.env
+        required: false
     environment:
       PORT: 3001
       DATABASE_URL: postgresql://match_alert_user:match_alert_password@postgres:5432/match_alert_db?schema=public
@@ -35,12 +47,14 @@ services:
       FACEBOOK_CLIENT_SECRET: your_facebook_client_secret
       FACEBOOK_CALLBACK_URL: http://localhost:3001/auth/facebook/callback
       API_FOOTBALL_BASE_URL: https://v3.football.api-sports.io
-      API_FOOTBALL_KEY: your_api_football_key
+      REDIS_URL: redis://redis:6379
     ports:
       - "3001:3001"
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   frontend:
     build:
@@ -75,3 +89,4 @@ services:
 
 volumes:
   match_alert_postgres_data:
+  match_alert_redis_data:
