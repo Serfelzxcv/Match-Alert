@@ -11,6 +11,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const backendUrl = getBackendUrl();
@@ -22,7 +23,7 @@ export default function LoginPage() {
 
     try {
       const response = await api.post('/auth/login', { email, password });
-      setToken(response.data.accessToken);
+      setToken(response.data.accessToken, rememberMe);
       router.push('/dashboard');
     } catch (requestError: any) {
       setError(requestError.response?.data?.message || 'No se pudo iniciar sesion');
@@ -54,6 +55,15 @@ export default function LoginPage() {
             onChange={(event) => setPassword(event.target.value)}
             required
           />
+        </label>
+        <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[#52635a]">
+          <input
+            checked={rememberMe}
+            className="h-4 w-4 accent-[#2f7d55]"
+            type="checkbox"
+            onChange={(event) => setRememberMe(event.target.checked)}
+          />
+          <span>Recordarme</span>
         </label>
         {error ? <p className="rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p> : null}
         <button

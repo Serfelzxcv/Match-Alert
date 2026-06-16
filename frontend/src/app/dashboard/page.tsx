@@ -1,11 +1,28 @@
 'use client';
 
-import { CalendarClock, Home, Loader2, LogOut, Menu, RefreshCw, Trophy, X } from 'lucide-react';
+import {
+  CalendarClock,
+  CalendarDays,
+  CircleDollarSign,
+  Flame,
+  Home,
+  Loader2,
+  LogOut,
+  MapPin,
+  Menu,
+  Newspaper,
+  RefreshCw,
+  Shield,
+  ShieldPlus,
+  Trophy,
+  UserRound,
+  X,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { api } from '@/lib/api';
+import { api, getBackendUrl } from '@/lib/api';
 import { clearToken, getToken } from '@/lib/auth';
 
 interface UserProfile {
@@ -22,21 +39,65 @@ interface ApiFootballTeam {
   id: number;
   name: string;
   logo?: string;
+  winner?: boolean | null;
+}
+
+interface ApiFootballScorePair {
+  home: number | null;
+  away: number | null;
+}
+
+interface ApiFootballEvent {
+  time: {
+    elapsed: number;
+    extra?: number | null;
+  };
+  team: ApiFootballTeam;
+  player: {
+    id?: number | null;
+    name?: string | null;
+  };
+  assist: {
+    id?: number | null;
+    name?: string | null;
+  };
+  type: string;
+  detail: string;
+  comments?: string | null;
 }
 
 interface ApiFootballLiveFixture {
   fixture: {
     id: number;
+    referee?: string | null;
+    timezone?: string;
+    date?: string;
+    timestamp?: number;
+    periods?: {
+      first?: number | null;
+      second?: number | null;
+    };
+    venue?: {
+      id?: number | null;
+      name?: string | null;
+      city?: string | null;
+    };
     status: {
       elapsed?: number | null;
       long?: string;
       short?: string;
+      extra?: number | null;
     };
   };
   league: {
+    id?: number;
     name: string;
     country: string;
     logo?: string;
+    flag?: string;
+    season?: number;
+    round?: string;
+    standings?: boolean;
   };
   teams: {
     home: ApiFootballTeam;
@@ -46,14 +107,30 @@ interface ApiFootballLiveFixture {
     home: number | null;
     away: number | null;
   };
+  score?: {
+    halftime?: ApiFootballScorePair;
+    fulltime?: ApiFootballScorePair;
+    extratime?: ApiFootballScorePair;
+    penalty?: ApiFootballScorePair;
+  };
+  events?: ApiFootballEvent[];
 }
 
 interface LiveFixturesResponse {
   response: ApiFootballLiveFixture[];
 }
 
-const LIVE_FIXTURES_POLL_MS = 10 * 60 * 1000;
-type DashboardView = 'home' | 'live';
+type DashboardView = 'home' | 'live' | 'today';
+
+const popularLeagues = [
+  { name: 'UEFA Champions League', count: 38, icon: Trophy },
+  { name: 'Europa League', count: 41, icon: ShieldPlus },
+  { name: 'Premier League', count: 153, icon: Trophy },
+  { name: 'La Liga', count: 120, icon: Trophy },
+  { name: 'Serie A', count: 135, icon: Trophy },
+  { name: 'Bundesliga', count: 140, icon: Trophy },
+  { name: 'Ligue 1', count: 110, icon: Trophy },
+];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -65,6 +142,36 @@ export default function DashboardPage() {
   const [isLoadingFixtures, setIsLoadingFixtures] = useState(false);
   const [fixturesError, setFixturesError] = useState('');
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
+  const [todayFixtures, setTodayFixtures] = useState<ApiFootballLiveFixture[]>([]);
+  const [isLoadingTodayFixtures, setIsLoadingTodayFixtures] = useState(false);
+  const [todayFixturesError, setTodayFixturesError] = useState('');
+  const [todayLastUpdatedAt, setTodayLastUpdatedAt] = useState<Date | null>(null);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(() => getPeruDateInputValue());
+  const [selectedFixture, setSelectedFixture] = useState<ApiFootballLiveFixture | null>(null);
+
+  const applyLiveFixtures = useCallback((fixtures: ApiFootballLiveFixture[]) => {
+    setLiveFixtures(fixtures);
+    setSelectedFixture((currentFixture) => {
+      if (!currentFixture) {
+        return null;
+      }
+
+      return fixtures.find((fixture) => fixture.fixture.id === currentFixture.fixture.id) ?? currentFixture;
+    });
+    setLastUpdatedAt(new Date());
+  }, []);
+
+  const applyTodayFixtures = useCallback((fixtures: ApiFootballLiveFixture[]) => {
+    setTodayFixtures(fixtures);
+    setSelectedFixture((currentFixture) => {
+      if (!currentFixture) {
+        return null;
+      }
+
+      return fixtures.find((fixture) => fixture.fixture.id === currentFixture.fixture.id) ?? currentFixture;
+    });
+    setTodayLastUpdatedAt(new Date());
+  }, []);
 
   const fetchLiveFixtures = useCallback(async () => {
     setFixturesError('');
@@ -73,14 +180,29 @@ export default function DashboardPage() {
 
     try {
       const response = await api.get<LiveFixturesResponse>('/football/fixtures/live');
-      setLiveFixtures(response.data.response ?? []);
-      setLastUpdatedAt(new Date());
+      applyLiveFixtures(response.data.response ?? []);
     } catch (error: any) {
       setFixturesError(error.response?.data?.message || 'No se pudieron cargar los partidos en vivo.');
     } finally {
       setIsLoadingFixtures(false);
     }
-  }, []);
+  }, [applyLiveFixtures]);
+
+  const fetchTodayFixtures = useCallback(async () => {
+    setTodayFixturesError('');
+    setIsLoadingTodayFixtures(true);
+
+    try {
+      const response = await api.get<LiveFixturesResponse>('/football/fixtures/today', {
+        params: { date: selectedCalendarDate },
+      });
+      applyTodayFixtures(response.data.response ?? []);
+    } catch (error: any) {
+      setTodayFixturesError(error.response?.data?.message || 'No se pudieron cargar los partidos del dia.');
+    } finally {
+      setIsLoadingTodayFixtures(false);
+    }
+  }, [applyTodayFixtures, selectedCalendarDate]);
 
   useEffect(() => {
     const token = getToken();
@@ -105,10 +227,88 @@ export default function DashboardPage() {
       return;
     }
 
-    fetchLiveFixtures();
-    const intervalId = window.setInterval(fetchLiveFixtures, LIVE_FIXTURES_POLL_MS);
-    return () => window.clearInterval(intervalId);
-  }, [activeView, fetchLiveFixtures, user]);
+    const token = getToken();
+
+    if (!token) {
+      return;
+    }
+
+    setIsLoadingFixtures(true);
+    setFixturesError('');
+
+    const streamUrl = `${getBackendUrl()}/football/fixtures/live/stream?token=${encodeURIComponent(token)}`;
+    const eventSource = new EventSource(streamUrl);
+
+    function handleLiveFixtures(event: MessageEvent<string>) {
+      const payload = JSON.parse(event.data) as LiveFixturesResponse;
+      applyLiveFixtures(payload.response ?? []);
+      setFixturesError('');
+      setIsLoadingFixtures(false);
+    }
+
+    function handleLiveFixturesError(event: MessageEvent<string>) {
+      const payload = JSON.parse(event.data) as { message?: string };
+      setFixturesError(payload.message || 'No se pudieron cargar los partidos en vivo.');
+      setIsLoadingFixtures(false);
+    }
+
+    eventSource.addEventListener('live-fixtures', handleLiveFixtures);
+    eventSource.addEventListener('live-fixtures-error', handleLiveFixturesError);
+    eventSource.onerror = () => {
+      setFixturesError('Conexion en vivo interrumpida. Reintentando...');
+      setIsLoadingFixtures(false);
+    };
+
+    return () => {
+      eventSource.removeEventListener('live-fixtures', handleLiveFixtures);
+      eventSource.removeEventListener('live-fixtures-error', handleLiveFixturesError);
+      eventSource.close();
+    };
+  }, [activeView, applyLiveFixtures, user]);
+
+  useEffect(() => {
+    if (!user || activeView !== 'today') {
+      return;
+    }
+
+    const token = getToken();
+
+    if (!token) {
+      return;
+    }
+
+    setIsLoadingTodayFixtures(true);
+    setTodayFixturesError('');
+
+    const streamUrl = `${getBackendUrl()}/football/fixtures/today/stream?token=${encodeURIComponent(token)}&date=${encodeURIComponent(selectedCalendarDate)}`;
+    const eventSource = new EventSource(streamUrl);
+
+    function handleTodayFixtures(event: MessageEvent<string>) {
+      const payload = JSON.parse(event.data) as LiveFixturesResponse;
+      applyTodayFixtures(payload.response ?? []);
+      setTodayFixturesError('');
+      setIsLoadingTodayFixtures(false);
+    }
+
+    function handleTodayFixturesError(event: MessageEvent<string>) {
+      const payload = JSON.parse(event.data) as { message?: string };
+      setTodayFixturesError(payload.message || 'No se pudieron cargar los partidos del dia.');
+      setIsLoadingTodayFixtures(false);
+    }
+
+    eventSource.addEventListener('today-fixtures', handleTodayFixtures);
+    eventSource.addEventListener('today-fixtures-error', handleTodayFixturesError);
+    eventSource.onerror = () => {
+      setTodayFixturesError('Conexion de partidos del dia interrumpida. Reintentando...');
+      setIsLoadingTodayFixtures(false);
+    };
+
+    return () => {
+      eventSource.removeEventListener('today-fixtures', handleTodayFixtures);
+      eventSource.removeEventListener('today-fixtures-error', handleTodayFixturesError);
+      eventSource.close();
+    };
+  }, [activeView, applyTodayFixtures, selectedCalendarDate, user]);
 
   const lastUpdatedLabel = useMemo(() => {
     if (!lastUpdatedAt) {
@@ -121,6 +321,17 @@ export default function DashboardPage() {
     });
   }, [lastUpdatedAt]);
 
+  const todayLastUpdatedLabel = useMemo(() => {
+    if (!todayLastUpdatedAt) {
+      return 'Esperando datos';
+    }
+
+    return todayLastUpdatedAt.toLocaleTimeString('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }, [todayLastUpdatedAt]);
+
   function handleLogout() {
     clearToken();
     router.replace('/');
@@ -129,6 +340,10 @@ export default function DashboardPage() {
   function changeView(view: DashboardView) {
     setActiveView(view);
     setIsSidebarOpen(false);
+  }
+
+  function handleSelectFixture(fixture: ApiFootballLiveFixture) {
+    setSelectedFixture(fixture);
   }
 
   if (isLoadingUser) {
@@ -147,15 +362,15 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f8fb] text-[#151922]">
-      <div className="lg:grid lg:min-h-screen lg:grid-cols-[280px_1fr]">
+    <main className="h-screen overflow-hidden bg-[#f7f8fb] text-[#151922]">
+      <div className="h-full lg:grid lg:grid-cols-[280px_1fr]">
         <aside
-          className={`fixed inset-y-0 left-0 z-40 w-[280px] border-r border-[#e3e7ee] bg-white transition-transform duration-200 lg:static lg:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 z-40 w-[280px] bg-[#17191d] text-[#d9dee7] transition-transform duration-200 lg:static lg:translate-x-0 ${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           <div className="flex h-full flex-col">
-            <div className="flex h-16 items-center justify-between border-b border-[#eef1f5] px-4">
+            <div className="flex h-16 items-center justify-between border-b border-white/8 px-4">
               <Link className="flex min-w-0 items-center gap-2" href="/dashboard">
                 <Image
                   src="/assets/match-alert-isotipo.png.png"
@@ -165,13 +380,13 @@ export default function DashboardPage() {
                   className="h-8 w-8 object-contain"
                 />
                 <div className="min-w-0">
-                  <span className="block truncate text-sm font-black">Match Alert</span>
-                  <span className="block text-xs font-medium text-[#6b7280]">Inicio</span>
+                  <span className="block truncate text-sm font-black text-white">Match Alert</span>
+                  <span className="block text-xs font-medium text-[#8f98a8]">Alertas de futbol</span>
                 </div>
               </Link>
               <button
                 aria-label="Cerrar menu"
-                className="grid h-9 w-9 place-items-center rounded-md text-[#6b7280] hover:bg-[#f2f4f7] lg:hidden"
+                className="grid h-9 w-9 place-items-center rounded-md text-[#8f98a8] hover:bg-white/8 lg:hidden"
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
               >
@@ -179,13 +394,14 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <nav className="flex-1 px-3 py-4">
+            <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
+              <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wide text-[#6f7786]">Navegacion</p>
               <div className="space-y-1">
                 <button
-                  className={`flex h-10 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-semibold transition ${
+                  className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
                     activeView === 'home'
-                      ? 'bg-[#101820] text-white shadow-sm'
-                      : 'text-[#4b5563] hover:bg-[#f2f4f7] hover:text-[#151922]'
+                      ? 'bg-[#252932] text-white shadow-sm'
+                      : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
                   }`}
                   type="button"
                   onClick={() => changeView('home')}
@@ -194,32 +410,89 @@ export default function DashboardPage() {
                   <span>Inicio</span>
                 </button>
                 <button
-                  className={`flex h-10 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-semibold transition ${
+                  className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
                     activeView === 'live'
-                      ? 'bg-[#101820] text-white shadow-sm'
-                      : 'text-[#4b5563] hover:bg-[#f2f4f7] hover:text-[#151922]'
+                      ? 'bg-[#252932] text-white shadow-sm'
+                      : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
                   }`}
                   type="button"
                   onClick={() => changeView('live')}
                 >
-                  <Trophy className="h-4 w-4" />
-                  <span>Partidos en vivo</span>
+                  <Flame className="h-4 w-4" />
+                  <span className="min-w-0 flex-1">En vivo</span>
+                  <span className="grid h-5 min-w-5 place-items-center rounded-sm bg-[#ff4057] px-1.5 text-[10px] font-black text-white">
+                    {liveFixtures.length}
+                  </span>
+                </button>
+                <button
+                  className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
+                    activeView === 'today'
+                      ? 'bg-[#252932] text-white shadow-sm'
+                      : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
+                  }`}
+                  type="button"
+                  onClick={() => changeView('today')}
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  <span>Calendario</span>
+                </button>
+                <button
+                  className="flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[#c5ccd8] transition hover:bg-white/8 hover:text-white"
+                  type="button"
+                >
+                  <Newspaper className="h-4 w-4" />
+                  <span>Noticias</span>
+                </button>
+                <button
+                  className="flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[#c5ccd8] transition hover:bg-white/8 hover:text-white"
+                  type="button"
+                >
+                  <CircleDollarSign className="h-4 w-4" />
+                  <span>Suscripcion</span>
+                </button>
+              </div>
+
+              <div className="mt-6">
+                <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wide text-[#6f7786]">Ligas populares</p>
+                <div className="space-y-1">
+                  {popularLeagues.map((league) => (
+                    <button
+                      key={league.name}
+                      className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
+                        league.name === 'Premier League'
+                          ? 'bg-[#252932] text-white'
+                          : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
+                      }`}
+                      type="button"
+                    >
+                      <league.icon className="h-4 w-4 shrink-0 text-[#8f98a8]" />
+                      <span className="min-w-0 flex-1 truncate">{league.name}</span>
+                      <span className="text-[11px] font-bold text-[#8f98a8]">{league.count}</span>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="mt-2 flex h-8 w-full items-center justify-between rounded-md px-2 text-left text-sm font-semibold text-white transition hover:bg-white/8"
+                  type="button"
+                >
+                  <span>Ver todas las ligas</span>
+                  <span className="text-[#8f98a8]">&gt;</span>
                 </button>
               </div>
             </nav>
 
-            <div className="border-t border-[#eef1f5] p-3">
+            <div className="border-t border-white/8 p-3">
               <div className="mb-2 flex items-center gap-3 rounded-md px-2 py-2">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#e9f8ef] text-xs font-black uppercase text-[#198754]">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#24372d] text-xs font-black uppercase text-[#9dff2f]">
                   {user.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-bold">{user.name}</p>
-                  <p className="truncate text-xs text-[#6b7280]">{user.email}</p>
+                  <p className="truncate text-xs font-bold text-white">{user.name}</p>
+                  <p className="truncate text-xs text-[#8f98a8]">{user.email}</p>
                 </div>
               </div>
               <button
-                className="flex h-10 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-semibold text-[#4b5563] hover:bg-[#fff0e8] hover:text-[#ef5b2a]"
+                className="flex h-9 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[#c5ccd8] hover:bg-white/8 hover:text-[#ff6a2b]"
                 type="button"
                 onClick={handleLogout}
               >
@@ -239,8 +512,8 @@ export default function DashboardPage() {
           />
         ) : null}
 
-        <section className="min-w-0">
-          <header className="sticky top-0 z-20 flex min-h-16 items-center gap-3 border-b border-[#e3e7ee] bg-white/92 px-4 backdrop-blur">
+        <section className="flex min-h-0 min-w-0 flex-col">
+          <header className="sticky top-0 z-20 flex min-h-16 shrink-0 items-center gap-3 border-b border-[#e3e7ee] bg-white/92 px-4 backdrop-blur">
             <button
               aria-label="Abrir menu"
               className="grid h-9 w-9 place-items-center rounded-md border border-[#e3e7ee] text-[#4b5563] hover:bg-[#f2f4f7] lg:hidden"
@@ -250,18 +523,14 @@ export default function DashboardPage() {
               <Menu className="h-4 w-4" />
             </button>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-bold">
-                {activeView === 'home' ? 'Inicio' : 'Partidos en vivo'}
-              </h1>
-              <p className="truncate text-xs text-[#6b7280]">
-                {activeView === 'home' ? 'Pantalla inicial de Match Alert' : 'Datos en vivo desde API-FOOTBALL'}
-              </p>
+              <h1 className="truncate text-base font-bold">{getViewTitle(activeView)}</h1>
+              <p className="truncate text-xs text-[#6b7280]">{getViewDescription(activeView)}</p>
             </div>
-            {activeView === 'live' ? (
+            {activeView === 'live' || activeView === 'today' ? (
               <button
                 className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#e3e7ee] bg-white px-3 text-sm font-bold text-[#151922] hover:bg-[#f2f4f7]"
                 type="button"
-                onClick={fetchLiveFixtures}
+                onClick={activeView === 'live' ? fetchLiveFixtures : fetchTodayFixtures}
               >
                 <RefreshCw className="h-4 w-4" />
                 <span className="hidden sm:inline">Actualizar</span>
@@ -269,19 +538,42 @@ export default function DashboardPage() {
             ) : null}
           </header>
 
-          <div className="space-y-4 p-4">
+          <div className="min-h-0 flex-1 overflow-hidden p-4">
             {activeView === 'home' ? <HomeView user={user} onOpenLive={() => changeView('live')} /> : null}
             {activeView === 'live' ? (
               <LiveFixturesView
+                title="Partidos en vivo"
+                description="Actualizacion automatica cada 10 minutos."
+                emptyLabel="No hay partidos en vivo en este momento."
+                statusLabel="En vivo"
                 fixtures={liveFixtures}
                 fixturesError={fixturesError}
                 isLoadingFixtures={isLoadingFixtures}
                 lastUpdatedLabel={lastUpdatedLabel}
+                onSelectFixture={handleSelectFixture}
+              />
+            ) : null}
+            {activeView === 'today' ? (
+              <LiveFixturesView
+                title="Partidos del dia"
+                description="Horarios en hora peruana. Resultados actualizados cada 10 minutos."
+                emptyLabel="No hay partidos programados para hoy."
+                statusLabel="Hoy"
+                fixtures={todayFixtures}
+                fixturesError={todayFixturesError}
+                isLoadingFixtures={isLoadingTodayFixtures}
+                lastUpdatedLabel={todayLastUpdatedLabel}
+                selectedDate={selectedCalendarDate}
+                onSelectedDateChange={setSelectedCalendarDate}
+                onSelectFixture={handleSelectFixture}
               />
             ) : null}
           </div>
         </section>
       </div>
+      {selectedFixture ? (
+        <FixtureDetailDialog fixture={selectedFixture} onClose={() => setSelectedFixture(null)} />
+      ) : null}
     </main>
   );
 }
@@ -307,31 +599,60 @@ function HomeView({ user, onOpenLive }: { user: UserProfile; onOpenLive: () => v
 }
 
 function LiveFixturesView({
+  title,
+  description,
+  emptyLabel,
+  statusLabel,
   fixtures,
   fixturesError,
   isLoadingFixtures,
   lastUpdatedLabel,
+  selectedDate,
+  onSelectedDateChange,
+  onSelectFixture,
 }: {
+  title: string;
+  description: string;
+  emptyLabel: string;
+  statusLabel: string;
   fixtures: ApiFootballLiveFixture[];
   fixturesError: string;
   isLoadingFixtures: boolean;
   lastUpdatedLabel: string;
+  selectedDate?: string;
+  onSelectedDateChange?: (date: string) => void;
+  onSelectFixture: (fixture: ApiFootballLiveFixture) => void;
 }) {
+  const groupedFixtures = useMemo(() => groupFixturesByLeague(fixtures), [fixtures]);
+
   return (
-    <section className="rounded-md border border-[#e3e7ee] bg-white shadow-sm">
-      <div className="flex flex-col gap-2 border-b border-[#eef1f5] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <section className="flex h-full min-h-0 flex-col rounded-md border border-white/10 bg-[#17191d] text-[#d9dee7] shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-white/8 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-sm font-bold">Partidos en vivo</h2>
-          <p className="mt-1 text-xs text-[#6b7280]">Actualizacion automatica cada 10 minutos.</p>
+          <h2 className="text-sm font-bold text-white">{title}</h2>
+          <p className="mt-1 text-xs text-[#8f98a8]">{description}</p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#6b7280]">
-          <CalendarClock className="h-4 w-4" />
-          <span>Ultima consulta: {lastUpdatedLabel}</span>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {selectedDate && onSelectedDateChange ? (
+            <label className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1.5 text-xs font-bold text-[#c5ccd8]">
+              <CalendarDays className="h-4 w-4 text-[#9dff2f]" />
+              <input
+                className="bg-transparent text-xs font-bold text-white outline-none [color-scheme:dark]"
+                type="date"
+                value={selectedDate}
+                onChange={(event) => onSelectedDateChange(event.target.value)}
+              />
+            </label>
+          ) : null}
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#8f98a8]">
+            <CalendarClock className="h-4 w-4" />
+            <span>Ultima consulta: {lastUpdatedLabel}</span>
+          </div>
         </div>
       </div>
 
       {isLoadingFixtures ? (
-        <div className="flex items-center gap-2 p-4 text-sm font-semibold text-[#6b7280]">
+        <div className="flex items-center gap-2 p-4 text-sm font-semibold text-[#8f98a8]">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>Cargando partidos...</span>
         </div>
@@ -342,41 +663,37 @@ function LiveFixturesView({
       ) : null}
 
       {!isLoadingFixtures && !fixturesError && fixtures.length === 0 ? (
-        <div className="p-4 text-sm text-[#6b7280]">No hay partidos en vivo en este momento.</div>
+        <div className="p-4 text-sm text-[#8f98a8]">{emptyLabel}</div>
       ) : null}
 
       {!isLoadingFixtures && !fixturesError && fixtures.length > 0 ? (
-        <div className="divide-y divide-[#eef1f5] p-2">
-          {fixtures.map((match) => (
-            <article key={match.fixture.id} className="rounded-md px-2 py-3 hover:bg-[#f7f8fb]">
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-[#6b7280]">
-                {match.league.logo ? (
-                  <Image
-                    src={match.league.logo}
-                    alt={match.league.name}
-                    width={18}
-                    height={18}
-                    className="h-[18px] w-[18px] object-contain"
-                  />
-                ) : null}
-                <span className="truncate">
-                  {match.league.name} - {match.league.country}
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-2">
+          {groupedFixtures.map((group) => (
+            <article key={group.key} className="overflow-hidden rounded-md border border-white/10 bg-[#1f232b]">
+              <div className="flex items-center justify-between gap-3 border-b border-white/8 bg-[#20242c] px-3 py-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#33251f] text-[#ff6a2b]">
+                    <Trophy className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-white">{group.leagueName}</p>
+                    <p className="truncate text-xs font-semibold text-[#8f98a8]">{group.country}</p>
+                  </div>
+                </div>
+                <span className="grid h-6 min-w-6 place-items-center rounded-full bg-[#0f1115] px-2 text-xs font-black text-[#9dff2f]">
+                  {group.fixtures.length}
                 </span>
               </div>
 
-              <div className="grid grid-cols-[1fr_auto] items-center gap-3">
-                <div className="min-w-0 space-y-2">
-                  <TeamRow team={match.teams.home} />
-                  <TeamRow team={match.teams.away} />
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-black">
-                    {match.goals.home ?? 0} - {match.goals.away ?? 0}
-                  </p>
-                  <p className="mt-1 text-xs font-bold text-[#ef5b2a]">
-                    {formatMatchStatus(match.fixture.status)}
-                  </p>
-                </div>
+              <div className="divide-y divide-white/8">
+                {group.fixtures.map((match) => (
+                  <FixtureRow
+                    key={match.fixture.id}
+                    match={match}
+                    statusLabel={statusLabel}
+                    onSelectFixture={onSelectFixture}
+                  />
+                ))}
               </div>
             </article>
           ))}
@@ -386,23 +703,359 @@ function LiveFixturesView({
   );
 }
 
-function TeamRow({ team }: { team: ApiFootballTeam }) {
+function FixtureRow({
+  match,
+  statusLabel,
+  onSelectFixture,
+}: {
+  match: ApiFootballLiveFixture;
+  statusLabel: string;
+  onSelectFixture: (fixture: ApiFootballLiveFixture) => void;
+}) {
   return (
-    <div className="flex min-w-0 items-center gap-2">
-      {team.logo ? (
-        <Image src={team.logo} alt={team.name} width={22} height={22} className="h-[22px] w-[22px] object-contain" />
-      ) : (
-        <span className="h-[22px] w-[22px] rounded-full bg-[#eef1f5]" />
-      )}
-      <span className="truncate text-sm font-bold">{team.name}</span>
+    <div
+      className="grid cursor-pointer grid-cols-[58px_1fr_34px] items-center gap-3 px-3 py-2.5 transition duration-200 hover:bg-white/[0.06]"
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelectFixture(match)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelectFixture(match);
+        }
+      }}
+    >
+      <div className="text-xs font-bold leading-4 text-[#8f98a8]">
+        <p className="text-[#ff6a2b]">{formatFixtureListStatus(match)}</p>
+        <p>{match.fixture.status.short || statusLabel}</p>
+      </div>
+
+      <div className="min-w-0 space-y-1">
+        <TeamRow team={match.teams.home} />
+        <TeamRow team={match.teams.away} />
+      </div>
+
+      <div className="space-y-1 text-right text-sm font-black tabular-nums text-white">
+        <p>{formatGoal(match.goals.home)}</p>
+        <p>{formatGoal(match.goals.away)}</p>
+      </div>
     </div>
   );
 }
 
+function TeamRow({ team }: { team: ApiFootballTeam }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      {team.logo ? (
+        <Image
+          src={team.logo}
+          alt={team.name}
+          width={22}
+          height={22}
+          unoptimized
+          className="h-[22px] w-[22px] object-contain"
+        />
+      ) : (
+        <span className="h-[22px] w-[22px] rounded-full bg-[#eef1f5]" />
+      )}
+      <span className="truncate text-sm font-bold text-[#eef3f8]">{team.name}</span>
+    </div>
+  );
+}
+
+function FixtureDetailDialog({
+  fixture,
+  onClose,
+}: {
+  fixture: ApiFootballLiveFixture;
+  onClose: () => void;
+}) {
+  const eventList = fixture.events ?? [];
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 px-4 py-6 backdrop-blur-sm">
+      <button className="absolute inset-0 cursor-default" type="button" aria-label="Cerrar detalle" onClick={onClose} />
+
+      <section
+        className="relative max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-md border border-[#dfe5ec] bg-white shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="fixture-detail-title"
+      >
+        <header className="flex items-center justify-between gap-3 border-b border-[#eef1f5] px-4 py-3">
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-2 text-xs font-bold text-[#6b7280]">
+              <Trophy className="h-3.5 w-3.5 shrink-0 text-[#ef5b2a]" />
+              <span className="truncate">
+                {fixture.league.name} - {fixture.league.country}
+              </span>
+            </div>
+            <h2 id="fixture-detail-title" className="mt-1 truncate text-base font-black text-[#101820]">
+              Detalle del partido
+            </h2>
+          </div>
+          <button
+            className="grid h-9 w-9 place-items-center rounded-md border border-[#e3e7ee] text-[#4b5563] hover:bg-[#f2f4f7]"
+            type="button"
+            aria-label="Cerrar"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </header>
+
+        <div className="max-h-[calc(92vh-64px)] overflow-y-auto p-4">
+          <section className="grid gap-4 border-b border-[#eef1f5] pb-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
+            <DialogTeam team={fixture.teams.home} align="left" />
+            <div className="text-center">
+              <p className="text-4xl font-black tabular-nums text-[#101820]">
+                {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
+              </p>
+              <p className="mt-1 text-xs font-black uppercase text-[#ef5b2a]">
+                {formatMatchStatus(fixture.fixture.status)}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-[#6b7280]">
+                {fixture.fixture.status.long || fixture.fixture.status.short || 'En vivo'}
+              </p>
+            </div>
+            <DialogTeam team={fixture.teams.away} align="right" />
+          </section>
+
+          <section className="grid gap-3 py-4 sm:grid-cols-2 lg:grid-cols-4">
+            <DetailItem icon={<Shield className="h-4 w-4" />} label="Fixture ID" value={String(fixture.fixture.id)} />
+            <DetailItem icon={<CalendarClock className="h-4 w-4" />} label="Fecha" value={formatFixtureDate(fixture.fixture.date)} />
+            <DetailItem icon={<UserRound className="h-4 w-4" />} label="Arbitro" value={fixture.fixture.referee || 'No disponible'} />
+            <DetailItem
+              icon={<MapPin className="h-4 w-4" />}
+              label="Estadio"
+              value={formatVenue(fixture.fixture.venue)}
+            />
+          </section>
+
+          <section className="grid gap-4 lg:grid-cols-[280px_1fr]">
+            <article className="rounded-md border border-[#e3e7ee]">
+              <div className="border-b border-[#eef1f5] px-3 py-2">
+                <h3 className="text-sm font-black">Marcador por etapa</h3>
+              </div>
+              <div className="divide-y divide-[#eef1f5]">
+                <ScoreStage label="Medio tiempo" score={fixture.score?.halftime} />
+                <ScoreStage label="Final" score={fixture.score?.fulltime} />
+                <ScoreStage label="Tiempo extra" score={fixture.score?.extratime} />
+                <ScoreStage label="Penales" score={fixture.score?.penalty} />
+              </div>
+            </article>
+
+            <article className="rounded-md border border-[#e3e7ee]">
+              <div className="flex items-center justify-between border-b border-[#eef1f5] px-3 py-2">
+                <h3 className="text-sm font-black">Eventos</h3>
+                <span className="text-xs font-bold text-[#6b7280]">{eventList.length}</span>
+              </div>
+              {eventList.length > 0 ? (
+                <div className="max-h-[260px] divide-y divide-[#eef1f5] overflow-y-auto">
+                  {eventList.map((event, index) => (
+                    <div key={`${event.time.elapsed}-${event.type}-${index}`} className="grid grid-cols-[52px_1fr] gap-3 px-3 py-2">
+                      <p className="text-xs font-black text-[#ef5b2a]">
+                        {event.time.elapsed}
+                        {event.time.extra ? `+${event.time.extra}` : ''}'
+                      </p>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-[#101820]">
+                          {event.type} - {event.detail}
+                        </p>
+                        <p className="mt-0.5 truncate text-xs text-[#6b7280]">
+                          {event.team.name}
+                          {event.player?.name ? ` · ${event.player.name}` : ''}
+                          {event.assist?.name ? ` · Asistencia: ${event.assist.name}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="px-3 py-4 text-sm text-[#6b7280]">Todavia no hay eventos registrados para este partido.</p>
+              )}
+            </article>
+          </section>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function DialogTeam({ team, align }: { team: ApiFootballTeam; align: 'left' | 'right' }) {
+  return (
+    <div className={`flex items-center gap-3 ${align === 'right' ? 'md:flex-row-reverse md:text-right' : ''}`}>
+      {team.logo ? (
+        <Image src={team.logo} alt={team.name} width={42} height={42} unoptimized className="h-[42px] w-[42px] object-contain" />
+      ) : (
+        <span className="h-[42px] w-[42px] rounded-full bg-[#eef1f5]" />
+      )}
+      <div className="min-w-0">
+        <p className="truncate text-base font-black text-[#101820]">{team.name}</p>
+        <p className="text-xs font-semibold text-[#6b7280]">{team.winner ? 'Ganando' : 'Equipo'}</p>
+      </div>
+    </div>
+  );
+}
+
+function DetailItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-[#e3e7ee] p-3">
+      <div className="mb-2 flex items-center gap-2 text-[#ef5b2a]">{icon}</div>
+      <p className="text-[11px] font-black uppercase text-[#6b7280]">{label}</p>
+      <p className="mt-1 break-words text-sm font-bold text-[#101820]">{value}</p>
+    </div>
+  );
+}
+
+function ScoreStage({ label, score }: { label: string; score?: ApiFootballScorePair }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+      <span className="font-semibold text-[#6b7280]">{label}</span>
+      <span className="font-black tabular-nums text-[#101820]">
+        {score?.home ?? '-'} - {score?.away ?? '-'}
+      </span>
+    </div>
+  );
+}
+
+function formatFixtureDate(date?: string) {
+  if (!date) {
+    return 'No disponible';
+  }
+
+  return new Date(date).toLocaleString('es-PE', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
+}
+
+function formatVenue(venue?: ApiFootballLiveFixture['fixture']['venue']) {
+  if (!venue?.name && !venue?.city) {
+    return 'No disponible';
+  }
+
+  return [venue.name, venue.city].filter(Boolean).join(' - ');
+}
+
+function groupFixturesByLeague(fixtures: ApiFootballLiveFixture[]) {
+  const groups = new Map<
+    string,
+    {
+      key: string;
+      leagueName: string;
+      country: string;
+      sortTime: number;
+      fixtures: ApiFootballLiveFixture[];
+    }
+  >();
+
+  for (const fixture of fixtures) {
+    const key = `${fixture.league.id ?? fixture.league.name}-${fixture.league.country}`;
+    const timestamp = fixture.fixture.timestamp ?? 0;
+    const existingGroup = groups.get(key);
+
+    if (existingGroup) {
+      existingGroup.fixtures.push(fixture);
+      existingGroup.sortTime = Math.min(existingGroup.sortTime, timestamp);
+      continue;
+    }
+
+    groups.set(key, {
+      key,
+      leagueName: fixture.league.name,
+      country: fixture.league.country,
+      sortTime: timestamp,
+      fixtures: [fixture],
+    });
+  }
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      ...group,
+      fixtures: group.fixtures.sort((firstFixture, secondFixture) => {
+        const firstTimestamp = firstFixture.fixture.timestamp ?? 0;
+        const secondTimestamp = secondFixture.fixture.timestamp ?? 0;
+        return firstTimestamp - secondTimestamp;
+      }),
+    }))
+    .sort((firstGroup, secondGroup) => firstGroup.sortTime - secondGroup.sortTime);
+}
+
+function formatGoal(goal: number | null) {
+  return goal ?? '-';
+}
+
+function getViewTitle(view: DashboardView) {
+  if (view === 'live') {
+    return 'Partidos en vivo';
+  }
+
+  if (view === 'today') {
+    return 'Partidos del dia';
+  }
+
+  return 'Inicio';
+}
+
+function getViewDescription(view: DashboardView) {
+  if (view === 'live') {
+    return 'Datos en vivo desde API-FOOTBALL';
+  }
+
+  if (view === 'today') {
+    return 'Programacion y resultados de hoy en hora peruana';
+  }
+
+  return 'Pantalla inicial de Match Alert';
+}
+
+function formatFixtureListStatus(match: ApiFootballLiveFixture) {
+  if (typeof match.fixture.status.elapsed === 'number') {
+    return formatMatchStatus(match.fixture.status);
+  }
+
+  const status = match.fixture.status.short;
+
+  if (status === 'NS' || status === 'TBD' || !status) {
+    return formatPeruTime(match.fixture.date);
+  }
+
+  return status;
+}
+
+function formatPeruTime(date?: string) {
+  if (!date) {
+    return '--:--';
+  }
+
+  return new Date(date).toLocaleTimeString('es-PE', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Lima',
+  });
+}
+
+function getPeruDateInputValue() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Lima',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const day = parts.find((part) => part.type === 'day')?.value;
+
+  return `${year}-${month}-${day}`;
+}
+
 function formatMatchStatus(status: ApiFootballLiveFixture['fixture']['status']) {
   if (typeof status.elapsed === 'number') {
-    return `${status.elapsed}'`;
+    return `${status.elapsed}${status.extra ? `+${status.extra}` : ''}'`;
   }
 
   return status.short || status.long || 'En vivo';
 }
+

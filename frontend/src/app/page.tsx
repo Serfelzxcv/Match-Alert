@@ -152,6 +152,7 @@ function AuthModal({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -163,7 +164,7 @@ function AuthModal({
     try {
       const payload = isRegister ? { name, email, password } : { email, password };
       const response = await api.post(isRegister ? '/auth/register' : '/auth/login', payload);
-      setToken(response.data.accessToken);
+      setToken(response.data.accessToken, isRegister ? true : rememberMe);
       router.push('/dashboard');
     } catch (requestError: any) {
       setError(
@@ -295,6 +296,17 @@ function AuthModal({
                   required
                 />
               </div>
+              {!isRegister ? (
+                <label className="flex cursor-pointer items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold text-white/70">
+                  <input
+                    checked={rememberMe}
+                    className="h-4 w-4 accent-[var(--green-opportunity)]"
+                    type="checkbox"
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                  />
+                  <span>Recordarme</span>
+                </label>
+              ) : null}
               {error ? (
                 <p className="rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p>
               ) : null}
