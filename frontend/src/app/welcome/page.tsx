@@ -11,7 +11,7 @@ export default function WelcomePage() {
   }, [router]);
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f7f8fb] px-4 text-[#4b5563]">
+    <main className="grid min-h-screen place-items-center bg-[var(--background)] px-4 text-[var(--muted)]">
       <p className="text-sm font-semibold">Redirigiendo al dashboard...</p>
     </main>
   );

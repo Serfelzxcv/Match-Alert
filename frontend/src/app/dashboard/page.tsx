@@ -22,6 +22,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { api, getBackendUrl } from '@/lib/api';
 import { clearToken, getToken } from '@/lib/auth';
 
@@ -348,7 +349,7 @@ export default function DashboardPage() {
 
   if (isLoadingUser) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f7f8fb] px-4 text-[#4b5563]">
+      <main className="grid min-h-screen place-items-center bg-[var(--background)] px-4 text-[var(--muted)]">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>Cargando inicio...</span>
@@ -362,15 +363,15 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="h-screen overflow-hidden bg-[#f7f8fb] text-[#151922]">
+    <main className="h-screen overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
       <div className="h-full lg:grid lg:grid-cols-[280px_1fr]">
         <aside
-          className={`fixed inset-y-0 left-0 z-40 w-[280px] bg-[#17191d] text-[#d9dee7] transition-transform duration-200 lg:static lg:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 z-40 w-[280px] border-r border-[var(--border)] bg-[var(--sidebar)] text-[var(--sidebar-foreground)] transition-transform duration-200 lg:static lg:translate-x-0 ${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           <div className="flex h-full flex-col">
-            <div className="flex h-16 items-center justify-between border-b border-white/8 px-4">
+            <div className="flex h-16 items-center justify-between border-b border-[var(--border)] px-4">
               <Link className="flex min-w-0 items-center gap-2" href="/dashboard">
                 <Image
                   src="/assets/match-alert-isotipo.png.png"
@@ -380,13 +381,13 @@ export default function DashboardPage() {
                   className="h-8 w-8 object-contain"
                 />
                 <div className="min-w-0">
-                  <span className="block truncate text-sm font-black text-white">Match Alert</span>
-                  <span className="block text-xs font-medium text-[#8f98a8]">Alertas de futbol</span>
+                  <span className="block truncate text-sm font-black text-[var(--sidebar-foreground)]">Match Alert</span>
+                  <span className="block text-xs font-medium text-[var(--sidebar-muted)]">Alertas de futbol</span>
                 </div>
               </Link>
               <button
                 aria-label="Cerrar menu"
-                className="grid h-9 w-9 place-items-center rounded-md text-[#8f98a8] hover:bg-white/8 lg:hidden"
+                className="grid h-9 w-9 place-items-center rounded-md text-[var(--sidebar-muted)] hover:bg-[var(--sidebar-hover)] lg:hidden"
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
               >
@@ -395,13 +396,13 @@ export default function DashboardPage() {
             </div>
 
             <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-              <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wide text-[#6f7786]">Navegacion</p>
+              <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wide text-[var(--sidebar-muted)]">Navegacion</p>
               <div className="space-y-1">
                 <button
                   className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
                     activeView === 'home'
-                      ? 'bg-[#252932] text-white shadow-sm'
-                      : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
+                      ? 'bg-[var(--sidebar-active)] text-[var(--sidebar-foreground)] shadow-sm'
+                      : 'text-[var(--sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-foreground)]'
                   }`}
                   type="button"
                   onClick={() => changeView('home')}
@@ -412,23 +413,23 @@ export default function DashboardPage() {
                 <button
                   className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
                     activeView === 'live'
-                      ? 'bg-[#252932] text-white shadow-sm'
-                      : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
+                      ? 'bg-[var(--sidebar-active)] text-[var(--sidebar-foreground)] shadow-sm'
+                      : 'text-[var(--sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-foreground)]'
                   }`}
                   type="button"
                   onClick={() => changeView('live')}
                 >
                   <Flame className="h-4 w-4" />
                   <span className="min-w-0 flex-1">En vivo</span>
-                  <span className="grid h-5 min-w-5 place-items-center rounded-sm bg-[#ff4057] px-1.5 text-[10px] font-black text-white">
+                  <span className="grid h-5 min-w-5 place-items-center rounded-sm bg-[var(--warning-soft)] px-1.5 text-[10px] font-black text-[var(--orange-alert)]">
                     {liveFixtures.length}
                   </span>
                 </button>
                 <button
                   className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
                     activeView === 'today'
-                      ? 'bg-[#252932] text-white shadow-sm'
-                      : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
+                      ? 'bg-[var(--sidebar-active)] text-[var(--sidebar-foreground)] shadow-sm'
+                      : 'text-[var(--sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-foreground)]'
                   }`}
                   type="button"
                   onClick={() => changeView('today')}
@@ -437,14 +438,14 @@ export default function DashboardPage() {
                   <span>Calendario</span>
                 </button>
                 <button
-                  className="flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[#c5ccd8] transition hover:bg-white/8 hover:text-white"
+                  className="flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[var(--sidebar-muted)] transition hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-foreground)]"
                   type="button"
                 >
                   <Newspaper className="h-4 w-4" />
                   <span>Noticias</span>
                 </button>
                 <button
-                  className="flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[#c5ccd8] transition hover:bg-white/8 hover:text-white"
+                  className="flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[var(--sidebar-muted)] transition hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-foreground)]"
                   type="button"
                 >
                   <CircleDollarSign className="h-4 w-4" />
@@ -453,46 +454,46 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-6">
-                <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wide text-[#6f7786]">Ligas populares</p>
+                <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wide text-[var(--sidebar-muted)]">Ligas populares</p>
                 <div className="space-y-1">
                   {popularLeagues.map((league) => (
                     <button
                       key={league.name}
                       className={`flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold transition ${
                         league.name === 'Premier League'
-                          ? 'bg-[#252932] text-white'
-                          : 'text-[#c5ccd8] hover:bg-white/8 hover:text-white'
+                          ? 'bg-[var(--sidebar-active)] text-[var(--sidebar-foreground)]'
+                          : 'text-[var(--sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-foreground)]'
                       }`}
                       type="button"
                     >
-                      <league.icon className="h-4 w-4 shrink-0 text-[#8f98a8]" />
+                      <league.icon className="h-4 w-4 shrink-0 text-[var(--sidebar-muted)]" />
                       <span className="min-w-0 flex-1 truncate">{league.name}</span>
-                      <span className="text-[11px] font-bold text-[#8f98a8]">{league.count}</span>
+                      <span className="text-[11px] font-bold text-[var(--sidebar-muted)]">{league.count}</span>
                     </button>
                   ))}
                 </div>
                 <button
-                  className="mt-2 flex h-8 w-full items-center justify-between rounded-md px-2 text-left text-sm font-semibold text-white transition hover:bg-white/8"
+                  className="mt-2 flex h-8 w-full items-center justify-between rounded-md px-2 text-left text-sm font-semibold text-[var(--sidebar-foreground)] transition hover:bg-[var(--sidebar-hover)]"
                   type="button"
                 >
                   <span>Ver todas las ligas</span>
-                  <span className="text-[#8f98a8]">&gt;</span>
+                  <span className="text-[var(--sidebar-muted)]">&gt;</span>
                 </button>
               </div>
             </nav>
 
-            <div className="border-t border-white/8 p-3">
+            <div className="border-t border-[var(--border)] p-3">
               <div className="mb-2 flex items-center gap-3 rounded-md px-2 py-2">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#24372d] text-xs font-black uppercase text-[#9dff2f]">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[var(--accent-soft)] text-xs font-black uppercase text-[var(--green-opportunity)]">
                   {user.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-bold text-white">{user.name}</p>
-                  <p className="truncate text-xs text-[#8f98a8]">{user.email}</p>
+                  <p className="truncate text-xs font-bold text-[var(--sidebar-foreground)]">{user.name}</p>
+                  <p className="truncate text-xs text-[var(--sidebar-muted)]">{user.email}</p>
                 </div>
               </div>
               <button
-                className="flex h-9 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[#c5ccd8] hover:bg-white/8 hover:text-[#ff6a2b]"
+                className="flex h-9 w-full items-center gap-3 rounded-md px-2 text-left text-sm font-semibold text-[var(--sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--orange-alert)]"
                 type="button"
                 onClick={handleLogout}
               >
@@ -513,10 +514,10 @@ export default function DashboardPage() {
         ) : null}
 
         <section className="flex min-h-0 min-w-0 flex-col">
-          <header className="sticky top-0 z-20 flex min-h-16 shrink-0 items-center gap-3 border-b border-[#e3e7ee] bg-white/92 px-4 backdrop-blur">
+          <header className="sticky top-0 z-20 flex min-h-16 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface)]/92 px-4 backdrop-blur">
             <button
               aria-label="Abrir menu"
-              className="grid h-9 w-9 place-items-center rounded-md border border-[#e3e7ee] text-[#4b5563] hover:bg-[#f2f4f7] lg:hidden"
+              className="grid h-9 w-9 place-items-center rounded-md border border-[var(--border)] text-[var(--muted)] hover:bg-[var(--surface-2)] lg:hidden"
               type="button"
               onClick={() => setIsSidebarOpen(true)}
             >
@@ -524,11 +525,12 @@ export default function DashboardPage() {
             </button>
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-base font-bold">{getViewTitle(activeView)}</h1>
-              <p className="truncate text-xs text-[#6b7280]">{getViewDescription(activeView)}</p>
+              <p className="truncate text-xs text-[var(--muted)]">{getViewDescription(activeView)}</p>
             </div>
+            <ThemeToggle />
             {activeView === 'live' || activeView === 'today' ? (
               <button
-                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#e3e7ee] bg-white px-3 text-sm font-bold text-[#151922] hover:bg-[#f2f4f7]"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-bold text-[var(--foreground)] hover:bg-[var(--surface-2)]"
                 type="button"
                 onClick={activeView === 'live' ? fetchLiveFixtures : fetchTodayFixtures}
               >
@@ -539,7 +541,9 @@ export default function DashboardPage() {
           </header>
 
           <div className="min-h-0 flex-1 overflow-hidden p-4">
-            {activeView === 'home' ? <HomeView user={user} onOpenLive={() => changeView('live')} /> : null}
+            {activeView === 'home' ? (
+              <HomeView user={user} onOpenLive={() => changeView('live')} onOpenToday={() => changeView('today')} />
+            ) : null}
             {activeView === 'live' ? (
               <LiveFixturesView
                 title="Partidos en vivo"
@@ -578,22 +582,61 @@ export default function DashboardPage() {
   );
 }
 
-function HomeView({ user, onOpenLive }: { user: UserProfile; onOpenLive: () => void }) {
+function HomeView({
+  user,
+  onOpenLive,
+  onOpenToday,
+}: {
+  user: UserProfile;
+  onOpenLive: () => void;
+  onOpenToday: () => void;
+}) {
   return (
-    <section className="rounded-md border border-[#dfe5ec] bg-white p-5 shadow-sm">
-      <p className="text-xs font-black uppercase text-[#ef5b2a]">Bienvenido</p>
-      <h2 className="mt-1 text-2xl font-black">Hola, {user.name}</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">
-        Esta es la pantalla inicial de Match Alert. Desde el menu puedes entrar a los partidos en vivo cuando quieras revisarlos.
-      </p>
-      <button
-        className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#101820] px-4 text-sm font-bold text-white hover:bg-[#24313d]"
-        type="button"
-        onClick={onOpenLive}
-      >
-        <Trophy className="h-4 w-4" />
-        Ver partidos en vivo
-      </button>
+    <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+      <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
+        <p className="text-xs font-black uppercase text-[var(--orange-alert)]">Bienvenido</p>
+        <h2 className="mt-1 text-2xl font-black">Hola, {user.name}</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+          Revisa partidos activos, consulta el calendario del dia y abre el detalle de cada encuentro desde una vista limpia.
+        </p>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+          <button
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[var(--orange-alert)] px-4 text-sm font-bold text-white hover:brightness-110"
+            type="button"
+            onClick={onOpenLive}
+          >
+            <Trophy className="h-4 w-4" />
+            Ver partidos en vivo
+          </button>
+          <button
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 text-sm font-bold text-[var(--foreground)] hover:bg-[var(--surface-2)]"
+            type="button"
+            onClick={onOpenToday}
+          >
+            <CalendarDays className="h-4 w-4" />
+            Revisar calendario
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+        {[
+          { label: 'Estado', value: 'Conectado', icon: Shield },
+          { label: 'Actualizacion', value: 'Cada 10 min', icon: RefreshCw },
+          { label: 'Fuente', value: 'API-FOOTBALL', icon: Trophy },
+        ].map((item) => (
+          <article
+            key={item.label}
+            className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm"
+          >
+            <div className="mb-3 grid h-8 w-8 place-items-center rounded-md bg-[var(--accent-soft)] text-[var(--green-opportunity)]">
+              <item.icon className="h-4 w-4" />
+            </div>
+            <p className="text-[11px] font-black uppercase text-[var(--muted)]">{item.label}</p>
+            <p className="mt-1 text-sm font-black text-[var(--foreground)]">{item.value}</p>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }
@@ -626,25 +669,25 @@ function LiveFixturesView({
   const groupedFixtures = useMemo(() => groupFixturesByLeague(fixtures), [fixtures]);
 
   return (
-    <section className="flex h-full min-h-0 flex-col rounded-md border border-white/10 bg-[#17191d] text-[#d9dee7] shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-white/8 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+    <section className="flex h-full min-h-0 flex-col rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-[var(--border)] px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-sm font-bold text-white">{title}</h2>
-          <p className="mt-1 text-xs text-[#8f98a8]">{description}</p>
+          <h2 className="text-sm font-bold text-[var(--foreground)]">{title}</h2>
+          <p className="mt-1 text-xs text-[var(--muted)]">{description}</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {selectedDate && onSelectedDateChange ? (
-            <label className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1.5 text-xs font-bold text-[#c5ccd8]">
-              <CalendarDays className="h-4 w-4 text-[#9dff2f]" />
+            <label className="flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1.5 text-xs font-bold text-[var(--foreground)]">
+              <CalendarDays className="h-4 w-4 text-[var(--green-opportunity)]" />
               <input
-                className="bg-transparent text-xs font-bold text-white outline-none [color-scheme:dark]"
+                className="bg-transparent text-xs font-bold text-[var(--foreground)] outline-none"
                 type="date"
                 value={selectedDate}
                 onChange={(event) => onSelectedDateChange(event.target.value)}
               />
             </label>
           ) : null}
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#8f98a8]">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--muted)]">
             <CalendarClock className="h-4 w-4" />
             <span>Ultima consulta: {lastUpdatedLabel}</span>
           </div>
@@ -652,7 +695,7 @@ function LiveFixturesView({
       </div>
 
       {isLoadingFixtures ? (
-        <div className="flex items-center gap-2 p-4 text-sm font-semibold text-[#8f98a8]">
+        <div className="flex items-center gap-2 p-4 text-sm font-semibold text-[var(--muted)]">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>Cargando partidos...</span>
         </div>
@@ -663,29 +706,29 @@ function LiveFixturesView({
       ) : null}
 
       {!isLoadingFixtures && !fixturesError && fixtures.length === 0 ? (
-        <div className="p-4 text-sm text-[#8f98a8]">{emptyLabel}</div>
+        <div className="p-4 text-sm text-[var(--muted)]">{emptyLabel}</div>
       ) : null}
 
       {!isLoadingFixtures && !fixturesError && fixtures.length > 0 ? (
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-2">
           {groupedFixtures.map((group) => (
-            <article key={group.key} className="overflow-hidden rounded-md border border-white/10 bg-[#1f232b]">
-              <div className="flex items-center justify-between gap-3 border-b border-white/8 bg-[#20242c] px-3 py-2">
+            <article key={group.key} className="overflow-hidden rounded-md border border-[var(--border)] bg-[var(--surface-2)]">
+              <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--surface-3)] px-3 py-2">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#33251f] text-[#ff6a2b]">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--warning-soft)] text-[var(--orange-alert)]">
                     <Trophy className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-black text-white">{group.leagueName}</p>
-                    <p className="truncate text-xs font-semibold text-[#8f98a8]">{group.country}</p>
+                    <p className="truncate text-sm font-black text-[var(--foreground)]">{group.leagueName}</p>
+                    <p className="truncate text-xs font-semibold text-[var(--muted)]">{group.country}</p>
                   </div>
                 </div>
-                <span className="grid h-6 min-w-6 place-items-center rounded-full bg-[#0f1115] px-2 text-xs font-black text-[#9dff2f]">
+                <span className="grid h-6 min-w-6 place-items-center rounded-full bg-[var(--surface)] px-2 text-xs font-black text-[var(--green-opportunity)]">
                   {group.fixtures.length}
                 </span>
               </div>
 
-              <div className="divide-y divide-white/8">
+              <div className="divide-y divide-[var(--border)]">
                 {group.fixtures.map((match) => (
                   <FixtureRow
                     key={match.fixture.id}
@@ -714,7 +757,7 @@ function FixtureRow({
 }) {
   return (
     <div
-      className="grid cursor-pointer grid-cols-[58px_1fr_34px] items-center gap-3 px-3 py-2.5 transition duration-200 hover:bg-white/[0.06]"
+      className="grid cursor-pointer grid-cols-[58px_1fr_34px] items-center gap-3 px-3 py-2.5 transition duration-200 hover:bg-[var(--surface)]"
       role="button"
       tabIndex={0}
       onClick={() => onSelectFixture(match)}
@@ -725,8 +768,8 @@ function FixtureRow({
         }
       }}
     >
-      <div className="text-xs font-bold leading-4 text-[#8f98a8]">
-        <p className="text-[#ff6a2b]">{formatFixtureListStatus(match)}</p>
+      <div className="text-xs font-bold leading-4 text-[var(--muted)]">
+        <p className="text-[var(--orange-alert)]">{formatFixtureListStatus(match)}</p>
         <p>{match.fixture.status.short || statusLabel}</p>
       </div>
 
@@ -735,7 +778,7 @@ function FixtureRow({
         <TeamRow team={match.teams.away} />
       </div>
 
-      <div className="space-y-1 text-right text-sm font-black tabular-nums text-white">
+      <div className="space-y-1 text-right text-sm font-black tabular-nums text-[var(--foreground)]">
         <p>{formatGoal(match.goals.home)}</p>
         <p>{formatGoal(match.goals.away)}</p>
       </div>
@@ -758,7 +801,7 @@ function TeamRow({ team }: { team: ApiFootballTeam }) {
       ) : (
         <span className="h-[22px] w-[22px] rounded-full bg-[#eef1f5]" />
       )}
-      <span className="truncate text-sm font-bold text-[#eef3f8]">{team.name}</span>
+      <span className="truncate text-sm font-bold text-[var(--foreground)]">{team.name}</span>
     </div>
   );
 }
@@ -777,25 +820,25 @@ function FixtureDetailDialog({
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Cerrar detalle" onClick={onClose} />
 
       <section
-        className="relative max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-md border border-[#dfe5ec] bg-white shadow-2xl"
+        className="relative max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-2xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby="fixture-detail-title"
       >
-        <header className="flex items-center justify-between gap-3 border-b border-[#eef1f5] px-4 py-3">
+        <header className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
           <div className="min-w-0">
-            <div className="flex min-w-0 items-center gap-2 text-xs font-bold text-[#6b7280]">
-              <Trophy className="h-3.5 w-3.5 shrink-0 text-[#ef5b2a]" />
+            <div className="flex min-w-0 items-center gap-2 text-xs font-bold text-[var(--muted)]">
+              <Trophy className="h-3.5 w-3.5 shrink-0 text-[var(--orange-alert)]" />
               <span className="truncate">
                 {fixture.league.name} - {fixture.league.country}
               </span>
             </div>
-            <h2 id="fixture-detail-title" className="mt-1 truncate text-base font-black text-[#101820]">
+            <h2 id="fixture-detail-title" className="mt-1 truncate text-base font-black text-[var(--foreground)]">
               Detalle del partido
             </h2>
           </div>
           <button
-            className="grid h-9 w-9 place-items-center rounded-md border border-[#e3e7ee] text-[#4b5563] hover:bg-[#f2f4f7]"
+            className="grid h-9 w-9 place-items-center rounded-md border border-[var(--border)] text-[var(--muted)] hover:bg-[var(--surface-2)]"
             type="button"
             aria-label="Cerrar"
             onClick={onClose}
@@ -805,16 +848,16 @@ function FixtureDetailDialog({
         </header>
 
         <div className="max-h-[calc(92vh-64px)] overflow-y-auto p-4">
-          <section className="grid gap-4 border-b border-[#eef1f5] pb-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
+          <section className="grid gap-4 border-b border-[var(--border)] pb-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
             <DialogTeam team={fixture.teams.home} align="left" />
             <div className="text-center">
-              <p className="text-4xl font-black tabular-nums text-[#101820]">
+              <p className="text-4xl font-black tabular-nums text-[var(--foreground)]">
                 {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
               </p>
-              <p className="mt-1 text-xs font-black uppercase text-[#ef5b2a]">
+              <p className="mt-1 text-xs font-black uppercase text-[var(--orange-alert)]">
                 {formatMatchStatus(fixture.fixture.status)}
               </p>
-              <p className="mt-1 text-xs font-semibold text-[#6b7280]">
+              <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
                 {fixture.fixture.status.long || fixture.fixture.status.short || 'En vivo'}
               </p>
             </div>
@@ -833,11 +876,11 @@ function FixtureDetailDialog({
           </section>
 
           <section className="grid gap-4 lg:grid-cols-[280px_1fr]">
-            <article className="rounded-md border border-[#e3e7ee]">
-              <div className="border-b border-[#eef1f5] px-3 py-2">
+            <article className="rounded-md border border-[var(--border)]">
+              <div className="border-b border-[var(--border)] px-3 py-2">
                 <h3 className="text-sm font-black">Marcador por etapa</h3>
               </div>
-              <div className="divide-y divide-[#eef1f5]">
+              <div className="divide-y divide-[var(--border)]">
                 <ScoreStage label="Medio tiempo" score={fixture.score?.halftime} />
                 <ScoreStage label="Final" score={fixture.score?.fulltime} />
                 <ScoreStage label="Tiempo extra" score={fixture.score?.extratime} />
@@ -845,24 +888,24 @@ function FixtureDetailDialog({
               </div>
             </article>
 
-            <article className="rounded-md border border-[#e3e7ee]">
-              <div className="flex items-center justify-between border-b border-[#eef1f5] px-3 py-2">
+            <article className="rounded-md border border-[var(--border)]">
+              <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2">
                 <h3 className="text-sm font-black">Eventos</h3>
-                <span className="text-xs font-bold text-[#6b7280]">{eventList.length}</span>
+                <span className="text-xs font-bold text-[var(--muted)]">{eventList.length}</span>
               </div>
               {eventList.length > 0 ? (
-                <div className="max-h-[260px] divide-y divide-[#eef1f5] overflow-y-auto">
+                <div className="max-h-[260px] divide-y divide-[var(--border)] overflow-y-auto">
                   {eventList.map((event, index) => (
                     <div key={`${event.time.elapsed}-${event.type}-${index}`} className="grid grid-cols-[52px_1fr] gap-3 px-3 py-2">
-                      <p className="text-xs font-black text-[#ef5b2a]">
+                      <p className="text-xs font-black text-[var(--orange-alert)]">
                         {event.time.elapsed}
                         {event.time.extra ? `+${event.time.extra}` : ''}'
                       </p>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-[#101820]">
+                        <p className="truncate text-sm font-bold text-[var(--foreground)]">
                           {event.type} - {event.detail}
                         </p>
-                        <p className="mt-0.5 truncate text-xs text-[#6b7280]">
+                        <p className="mt-0.5 truncate text-xs text-[var(--muted)]">
                           {event.team.name}
                           {event.player?.name ? ` · ${event.player.name}` : ''}
                           {event.assist?.name ? ` · Asistencia: ${event.assist.name}` : ''}
@@ -872,7 +915,7 @@ function FixtureDetailDialog({
                   ))}
                 </div>
               ) : (
-                <p className="px-3 py-4 text-sm text-[#6b7280]">Todavia no hay eventos registrados para este partido.</p>
+                <p className="px-3 py-4 text-sm text-[var(--muted)]">Todavia no hay eventos registrados para este partido.</p>
               )}
             </article>
           </section>
@@ -891,8 +934,8 @@ function DialogTeam({ team, align }: { team: ApiFootballTeam; align: 'left' | 'r
         <span className="h-[42px] w-[42px] rounded-full bg-[#eef1f5]" />
       )}
       <div className="min-w-0">
-        <p className="truncate text-base font-black text-[#101820]">{team.name}</p>
-        <p className="text-xs font-semibold text-[#6b7280]">{team.winner ? 'Ganando' : 'Equipo'}</p>
+        <p className="truncate text-base font-black text-[var(--foreground)]">{team.name}</p>
+        <p className="text-xs font-semibold text-[var(--muted)]">{team.winner ? 'Ganando' : 'Equipo'}</p>
       </div>
     </div>
   );
@@ -900,10 +943,10 @@ function DialogTeam({ team, align }: { team: ApiFootballTeam; align: 'left' | 'r
 
 function DetailItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[#e3e7ee] p-3">
-      <div className="mb-2 flex items-center gap-2 text-[#ef5b2a]">{icon}</div>
-      <p className="text-[11px] font-black uppercase text-[#6b7280]">{label}</p>
-      <p className="mt-1 break-words text-sm font-bold text-[#101820]">{value}</p>
+    <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-3">
+      <div className="mb-2 flex items-center gap-2 text-[var(--orange-alert)]">{icon}</div>
+      <p className="text-[11px] font-black uppercase text-[var(--muted)]">{label}</p>
+      <p className="mt-1 break-words text-sm font-bold text-[var(--foreground)]">{value}</p>
     </div>
   );
 }
@@ -911,8 +954,8 @@ function DetailItem({ icon, label, value }: { icon: React.ReactNode; label: stri
 function ScoreStage({ label, score }: { label: string; score?: ApiFootballScorePair }) {
   return (
     <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
-      <span className="font-semibold text-[#6b7280]">{label}</span>
-      <span className="font-black tabular-nums text-[#101820]">
+      <span className="font-semibold text-[var(--muted)]">{label}</span>
+      <span className="font-black tabular-nums text-[var(--foreground)]">
         {score?.home ?? '-'} - {score?.away ?? '-'}
       </span>
     </div>

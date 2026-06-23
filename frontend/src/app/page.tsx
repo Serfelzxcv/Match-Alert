@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, User, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,10 @@ type AuthMode = 'login' | 'register';
 export default function HomePage() {
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = 'light';
+  }, []);
+
   function openAuthModal(mode: AuthMode) {
     setAuthMode(mode);
   }
@@ -30,7 +34,7 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[var(--deep-charcoal)] text-[var(--ice-white)]">
+    <main className="min-h-screen overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
       <section className="relative min-h-screen overflow-hidden">
         <Image
           src="/assets/match_alert_landing.png"
@@ -42,7 +46,7 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,15,18,0.97)_0%,rgba(7,26,31,0.86)_36%,rgba(7,26,31,0.45)_66%,rgba(11,15,18,0.9)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,26,31,0.88)_0%,rgba(7,26,31,0.14)_35%,rgba(11,15,18,0.82)_100%)]" />
-        <div className="absolute inset-x-0 top-0 h-1 bg-[var(--green-opportunity)]" />
+        <div className="absolute inset-x-0 top-0 h-1 bg-[var(--orange-alert)]/90" />
         <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(244,247,250,0.4)_1px,transparent_1px)] [background-size:100%_7px]" />
 
         <div className="relative z-10 flex min-h-screen w-full flex-col">
@@ -62,14 +66,14 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => openAuthModal('login')}
-                className="rounded-md border border-[var(--ice-white)]/18 px-3 py-2 text-sm font-bold text-[var(--ice-white)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--green-opportunity)]/65 hover:bg-[var(--ice-white)]/10 active:translate-y-0 sm:px-4"
+                className="rounded-md border border-[var(--ice-white)]/18 px-3 py-2 text-sm font-bold text-[var(--ice-white)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--ice-white)]/34 hover:bg-[var(--ice-white)]/10 active:translate-y-0 sm:px-4"
               >
                 Iniciar sesi&oacute;n
               </button>
               <button
                 type="button"
                 onClick={() => openAuthModal('register')}
-                className="rounded-md bg-[var(--orange-alert)] px-3 py-2 text-sm font-black text-[var(--deep-charcoal)] shadow-[0_12px_30px_rgba(255,106,43,0.28)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#ff7d48] hover:shadow-[0_16px_38px_rgba(255,106,43,0.38)] active:translate-y-0 sm:px-4"
+                className="rounded-md bg-[var(--orange-alert)] px-3 py-2 text-sm font-black text-white shadow-[0_12px_28px_rgba(0,0,0,0.24)] transition duration-200 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 sm:px-4"
               >
                 Registro
               </button>
@@ -78,7 +82,7 @@ export default function HomePage() {
 
           <div className="flex min-h-0 flex-1 items-center px-5 pb-10 pt-7 sm:px-8 lg:px-12">
             <section id="cta" className="max-w-5xl">
-              <p className="mb-7 text-sm font-black uppercase text-[var(--green-opportunity)] sm:text-base">
+              <p className="mb-7 text-sm font-black uppercase text-[var(--ice-white)]/72 sm:text-base">
                 Futbol en vivo, sin perder jugadas
               </p>
               <h1 className="text-6xl font-black italic leading-[0.92] text-[var(--ice-white)] [text-shadow:0_8px_28px_rgba(0,0,0,0.55)] sm:text-7xl lg:text-9xl">
@@ -96,14 +100,14 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openAuthModal('register')}
-                  className="rounded-md bg-[var(--orange-alert)] px-6 py-4 text-center text-base font-black text-[var(--deep-charcoal)] shadow-[0_18px_45px_rgba(255,106,43,0.32)] transition duration-200 hover:-translate-y-1 hover:bg-[#ff7d48] hover:shadow-[0_22px_55px_rgba(255,106,43,0.42)] active:translate-y-0 sm:text-lg"
+                  className="rounded-md bg-[var(--orange-alert)] px-6 py-4 text-center text-base font-black text-white shadow-[0_18px_38px_rgba(0,0,0,0.28)] transition duration-200 hover:-translate-y-1 hover:brightness-110 active:translate-y-0 sm:text-lg"
                 >
                   Crear mi alerta
                 </button>
                 <button
                   type="button"
                   onClick={() => openAuthModal('login')}
-                  className="rounded-md border border-[var(--green-opportunity)]/45 bg-[var(--night-blue)]/58 px-6 py-4 text-center text-base font-bold text-[var(--ice-white)] backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-[var(--green-opportunity)] hover:bg-[var(--night-blue)]/82 hover:text-[var(--green-opportunity)] active:translate-y-0 sm:text-lg"
+                  className="rounded-md border border-[var(--ice-white)]/22 bg-[var(--night-blue)]/58 px-6 py-4 text-center text-base font-bold text-[var(--ice-white)] backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-[var(--ice-white)]/45 hover:bg-[var(--night-blue)]/82 active:translate-y-0 sm:text-lg"
                 >
                   Ya tengo cuenta
                 </button>
@@ -113,9 +117,9 @@ export default function HomePage() {
                 {highlights.map((item) => (
                   <div
                     key={item.label}
-                    className="rounded-md border border-[var(--ice-white)]/12 bg-[var(--deep-charcoal)]/52 p-5 backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-[var(--green-opportunity)]/55 hover:bg-[var(--night-blue)]/70"
+                    className="rounded-md border border-[var(--ice-white)]/12 bg-[var(--deep-charcoal)]/52 p-5 backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-[var(--ice-white)]/28 hover:bg-[var(--night-blue)]/70"
                   >
-                    <p className="text-3xl font-black italic leading-none text-[var(--green-opportunity)] sm:text-4xl">
+                    <p className="text-3xl font-black italic leading-none text-[var(--ice-white)] sm:text-4xl">
                       {item.value}
                     </p>
                     <p className="mt-2 text-sm font-black uppercase leading-5 text-[var(--ice-white)] sm:text-base">
@@ -190,7 +194,7 @@ function AuthModal({
         onClick={onClose}
       />
 
-      <section className="relative grid max-h-[92vh] w-full max-w-[900px] overflow-y-auto rounded-lg border border-[var(--green-opportunity)]/55 bg-[#070b0e] text-[var(--ice-white)] shadow-[0_0_0_1px_rgba(255,106,43,0.35),0_28px_90px_rgba(0,0,0,0.7),0_0_55px_rgba(157,255,47,0.16)] md:h-[520px] md:grid-cols-[382px_1fr] md:overflow-hidden">
+      <section className="relative grid max-h-[92vh] w-full max-w-[900px] overflow-y-auto rounded-lg border border-white/12 bg-[#0c1116] text-[var(--ice-white)] shadow-[0_28px_90px_rgba(0,0,0,0.58)] md:h-[520px] md:grid-cols-[382px_1fr] md:overflow-hidden">
         <Button
           variant="icon"
           onClick={onClose}
@@ -210,17 +214,15 @@ function AuthModal({
             priority
           />
           <div className="absolute inset-y-0 right-0 w-16 bg-[linear-gradient(90deg,transparent,#070b0e)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(157,255,47,0.1),transparent_32%,rgba(255,106,43,0.16))]" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.06),transparent_32%,rgba(201,111,26,0.16))]" />
         </div>
 
-        <div className="relative flex min-h-[520px] items-start justify-center overflow-hidden bg-[radial-gradient(circle_at_12%_0%,rgba(157,255,47,0.22),transparent_30%),radial-gradient(circle_at_100%_100%,rgba(255,64,79,0.26),transparent_32%),linear-gradient(135deg,#070b0e_0%,#10161a_54%,#080b0d_100%)] px-5 py-5 sm:px-8 md:min-h-0">
-          <div className="absolute left-0 top-0 h-px w-full bg-[linear-gradient(90deg,var(--green-opportunity),var(--orange-alert),#ff404f)]" />
-          <div className="absolute -right-20 top-12 h-40 w-40 rounded-full border border-[var(--green-opportunity)]/15" />
-          <div className="absolute -bottom-14 left-8 h-28 w-28 rounded-full border border-[var(--orange-alert)]/15" />
+        <div className="relative flex min-h-[520px] items-start justify-center overflow-hidden bg-[linear-gradient(135deg,#0c1116_0%,#141a22_54%,#0b0f14_100%)] px-5 py-5 sm:px-8 md:min-h-0">
+          <div className="absolute left-0 top-0 h-px w-full bg-[linear-gradient(90deg,rgba(255,255,255,0.16),var(--orange-alert),rgba(255,255,255,0.1))]" />
 
           <div className="relative w-full max-w-[350px]">
             <div className="mb-3 flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-md bg-[var(--green-opportunity)] text-xs font-black text-[#071014] shadow-[0_0_24px_rgba(157,255,47,0.42)]">
+              <div className="grid h-9 w-9 place-items-center rounded-md bg-[var(--orange-alert)] text-xs font-black text-white shadow-sm">
                 MA
               </div>
               <div>
@@ -244,7 +246,7 @@ function AuthModal({
                 onClick={() => onModeChange('login')}
                 className={`h-10 px-3 ${
                   !isRegister
-                    ? 'bg-[var(--green-opportunity)] text-[#071014] shadow-[0_0_18px_rgba(157,255,47,0.28)]'
+                    ? 'bg-white text-[#111827] shadow-sm'
                     : 'text-white/56 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -255,7 +257,7 @@ function AuthModal({
                 onClick={() => onModeChange('register')}
                 className={`h-10 px-3 ${
                   isRegister
-                    ? 'bg-[var(--green-opportunity)] text-[#071014] shadow-[0_0_18px_rgba(157,255,47,0.28)]'
+                    ? 'bg-white text-[#111827] shadow-sm'
                     : 'text-white/56 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -266,7 +268,7 @@ function AuthModal({
             <form className="mt-3 space-y-2.5" onSubmit={handleSubmit}>
               {isRegister ? (
                 <div className="relative">
-                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--green-opportunity)]/72" />
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
                   <Input
                     placeholder="Nombre"
                     value={name}
@@ -286,7 +288,7 @@ function AuthModal({
                 />
               </div>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#ff4057]/78" />
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
                 <Input
                   placeholder="Password"
                   type="password"
@@ -300,7 +302,7 @@ function AuthModal({
                 <label className="flex cursor-pointer items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold text-white/70">
                   <input
                     checked={rememberMe}
-                    className="h-4 w-4 accent-[var(--green-opportunity)]"
+                    className="h-4 w-4 accent-[var(--orange-alert)]"
                     type="checkbox"
                     onChange={(event) => setRememberMe(event.target.checked)}
                   />
@@ -327,7 +329,7 @@ function AuthModal({
 
             <div className="mt-3">
               <a
-                className="flex h-11 w-full items-center justify-center rounded-lg border border-white/12 bg-white/[0.06] px-4 text-center text-sm font-bold leading-none text-white/88 transition hover:border-[var(--green-opportunity)]/45 hover:bg-white/[0.1] hover:text-white"
+                className="flex h-11 w-full items-center justify-center rounded-lg border border-white/12 bg-white/[0.06] px-4 text-center text-sm font-bold leading-none text-white/88 transition hover:border-white/28 hover:bg-white/[0.1] hover:text-white"
                 href={`${backendUrl}/auth/google`}
               >
                 Continuar con Google
@@ -339,7 +341,7 @@ function AuthModal({
               <Button
                 variant="ghost"
                 onClick={() => onModeChange(isRegister ? 'login' : 'register')}
-                className="h-auto p-0 text-sm font-black text-[var(--green-opportunity)] hover:bg-transparent hover:text-[var(--orange-alert)]"
+                className="h-auto p-0 text-sm font-black text-white hover:bg-transparent hover:text-[var(--orange-alert)]"
               >
                 {isRegister ? 'Inicia sesion' : 'Registrate'}
               </Button>

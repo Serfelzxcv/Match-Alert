@@ -7,12 +7,12 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants = {
   default:
-    'bg-[linear-gradient(90deg,var(--orange-alert),#ff3f57)] text-white shadow-[0_12px_30px_rgba(255,64,79,0.34)] hover:brightness-110',
-  ghost: 'bg-transparent text-white/60 hover:bg-white/10 hover:text-white',
+    'bg-[var(--orange-alert)] text-white shadow-sm hover:brightness-105',
+  ghost: 'bg-transparent text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]',
   outline:
-    'border border-white/12 bg-white/[0.06] text-white/88 hover:border-[var(--green-opportunity)]/45 hover:bg-white/[0.1] hover:text-white',
+    'border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--surface-2)]',
   icon:
-    'border border-[var(--green-opportunity)]/35 bg-[#0c1114]/90 text-[var(--green-opportunity)] shadow-[0_0_18px_rgba(157,255,47,0.18)] hover:border-[var(--orange-alert)] hover:text-[var(--orange-alert)]',
+    'border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] shadow-sm hover:text-[var(--foreground)]',
 };
 
 export function Button({ className, variant = 'default', type = 'button', ...props }: ButtonProps) {
